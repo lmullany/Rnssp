@@ -158,7 +158,7 @@ api_data_csv <- myProfile$get_api_data(csv_url, fromCSV = TRUE)
 \subsection{Method \code{get_api_graph()}}{
 Get API graph
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Credentials$get_api_graph(url, file_ext = ".png")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Credentials$get_api_graph(url, file_ext = ".png", http_version = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -167,6 +167,8 @@ Get API graph
 \item{\code{url}}{a character of API URL}
 
 \item{\code{file_ext}}{a non-empty character vector giving the file extension. Default is \code{.png}.}
+
+\item{\code{http_version}}{(default= NULL); set to CURL HTTP VERSION if desired}
 }
 \if{html}{\out{</div>}}
 }

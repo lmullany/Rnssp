@@ -4,7 +4,7 @@
 \alias{get_api_response}
 \title{Get API response}
 \usage{
-get_api_response(url, profile = myProfile)
+get_api_response(url, profile = myProfile, ...)
 }
 \arguments{
 \item{url}{a character of API URL}

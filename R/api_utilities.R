@@ -103,8 +103,8 @@ get_api_data <- function(url, fromCSV = FALSE, profile = myProfile, ...) {
 #' api_response <- get_api_response(url)
 #' names(api_response)
 #' }
-get_api_response <- function(url, profile = myProfile) {
-  profile$get_api_response(url = url)
+get_api_response <- function(url, profile = myProfile, ...) {
+  profile$get_api_response(url = url, ...)
 }
 
 
@@ -134,13 +134,13 @@ get_api_response <- function(url, profile = myProfile) {
 #' img <- png::readPNG(api_data_graph$graph)
 #' grid::grid.raster(img)
 #' }
-get_api_graph <- function(url, file_ext = ".png", profile = myProfile) {
+get_api_graph <- function(url, file_ext = ".png", profile = myProfile, ...) {
   if(!"get_api_graph" %in% names(profile)){
     cli::cli_alert_info("Outdated profile detected!")
     cli::cli_abort("Please create a new profile or use
                    {.fn get_api_tsgraph} instead!")
   }
-  profile$get_api_graph(url = url, file_ext = file_ext)
+  profile$get_api_graph(url = url, file_ext = file_ext, ...)
 }
 
 #' Get ESSENCE data
@@ -224,20 +224,20 @@ get_essence_data <- function(url, start_date = NULL,
 
   switch(
     api_type,
-    "timeSeries" = profile$get_api_data(url_new) %>%
+    "timeSeries" = profile$get_api_data(url_new, ...) %>%
       extract2("timeSeriesData"),
-    "timeSeries/graph" = profile$get_api_graph(url_new) %>%
+    "timeSeries/graph" = profile$get_api_graph(url_new, ...) %>%
       extract2("graph"),
     "tableBuilder/csv" = profile$get_api_data(url_new, fromCSV = TRUE, ...),
     "tableBuilder" = profile$get_api_data(url_new, ...),
-    "dataDetails" = profile$get_api_data(url_new) %>%
+    "dataDetails" = profile$get_api_data(url_new, ...) %>%
       extract2("dataDetails"),
     "dataDetails/csv" = profile$get_api_data(url_new, fromCSV = TRUE, ...),
-    "summaryData" = profile$get_api_data(url_new) %>%
+    "summaryData" = profile$get_api_data(url_new, ...) %>%
       extract2("summaryData"),
-    "alerts/regionSyndromeAlerts" = myProfile$get_api_data(url_new) %>%
+    "alerts/regionSyndromeAlerts" = myProfile$get_api_data(url_new, ...) %>%
       extract2("regionSyndromeAlerts"),
-    "alerts/hospitalSyndromeAlerts" = profile$get_api_data(url_new) %>%
+    "alerts/hospitalSyndromeAlerts" = profile$get_api_data(url_new, ...) %>%
       extract2("hospitalSyndromeAlerts"),
     cli::cli_abort("URL is not of ESSENCE type. Check your URL or use
                    {.fn get_api_data} instead!")

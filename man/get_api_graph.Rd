@@ -4,7 +4,7 @@
 \alias{get_api_graph}
 \title{Get an API graph}
 \usage{
-get_api_graph(url, file_ext = ".png", profile = myProfile)
+get_api_graph(url, file_ext = ".png", profile = myProfile, ...)
 }
 \arguments{
 \item{url}{a character of API URL.}
