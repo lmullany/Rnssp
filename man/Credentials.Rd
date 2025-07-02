@@ -85,13 +85,15 @@ A new \code{Credentials} object
 \subsection{Method \code{get_api_response()}}{
 Get API response
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Credentials$get_api_response(url)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Credentials$get_api_response(url, http_version = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{url}}{a character of API URL}
+
+\item{\code{http_version}}{curl http version (default NULL)}
 }
 \if{html}{\out{</div>}}
 }
