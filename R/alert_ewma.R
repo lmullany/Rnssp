@@ -5,7 +5,6 @@
 #' @param df A data frame, data frame extension (e.g., a tibble), or a lazy data frame
 #' @param t Name of the column of type Date containing the dates
 #' @param y Numeric vector of counts or percentages
-#' @param mu Numeric vector of baseline averages
 #' @param B Baseline parameter. The baseline length is the number of days used to
 #'     calculate rolling averages, standard deviations, and exponentially weighted
 #'     moving averages. Defaults to 28 days to match ESSENCE implementation.
