@@ -45,7 +45,9 @@ Imports:
     stringr,
     tibble,
     tidyr,
-    yaml
+    yaml,
+    MASS,
+    broom
 Suggests:
     testthat,
     knitr,
