@@ -206,6 +206,7 @@ myProfile <- create_profile()'
   rstudioapi::sendToConsole(skeleton, execute = FALSE)
 }
 
+
 #' Create User Profile (GUI)
 #'
 #' Create and/or save a user profile
@@ -214,11 +215,11 @@ myProfile <- create_profile()'
 #'
 create_user_profile_gui <- function() {
   alert_msg <- function(x, y) {
-    if (class(x) == "try-error") {
+    if (inherits(x, "try-error")) {
       cli::cli_alert_danger("Failed to save {.file {y}}")
       shiny::stopApp()
     } else {
-      cli::cli_alert_success(paste("User Profile saved to", "{.file {y}}"))
+      cli::cli_alert_success("User Profile saved to {.file {y}}")
     }
   }
   
@@ -239,7 +240,13 @@ create_user_profile_gui <- function() {
         shiny::checkboxInput("saveProfile", label = "Save Profile to Home Directory?"),
         shiny::conditionalPanel(
           condition = "input.saveProfile == true",
-          shiny::radioButtons("format", "Select a format", inline = TRUE, choices = c(".rda", ".rds"), selected = ".rda"),
+          shiny::radioButtons(
+            "format",
+            "Select a format",
+            inline = TRUE,
+            choices = c(".rda", ".rds"),
+            selected = ".rda"
+          )
         )
       )
     )
@@ -248,30 +255,68 @@ create_user_profile_gui <- function() {
   server <- function(input, output, session) {
     shiny::observeEvent(input$done, {
       filename <- input$filename
+      
       if (any(length(input$username) == 0, length(input$password) == 0)) {
         shiny::stopApp()
       }
+      
       if (grepl("[[:punct:][:space:]]", filename)) {
         cli::cli_abort("Variable name {.var {filename}} is invalid! Try again!")
+      }
+      
+      myProfile <- Rnssp::create_profile(input$username, input$password)
+      
+      # Store in a session-scoped option (no global env assignment, no credentials printed)
+      options(Rnssp.profile = myProfile)
+      
+      # Give the user a safe way to create the variable they asked for (no secrets)
+      if (rstudioapi::isAvailable()) {
+        rstudioapi::sendToConsole(
+          paste0(filename, " <- getOption('Rnssp.profile')"),
+          execute = FALSE
+        )
+        cli::cli_alert_success(
+          paste0("Profile created for this session (stored in option 'Rnssp.profile'). ",
+                 "Run the console line to create {.var ", filename, "} if you want it in your workspace.")
+        )
       } else {
-        myProfile <- Rnssp::create_profile(input$username, input$password)
-        assign(
-          filename,
-          value = myProfile,
-          envir = .GlobalEnv
+        cli::cli_alert_info(
+          paste0(
+            "Profile created in the addin. Use the Save option to persist it, ",
+            "or call Rnssp::create_profile() in your session."
+          )
         )
       }
       
-      if (input$saveProfile) {
-        target <- file.path(Sys.getenv("HOME"), paste0(filename, input$format))
-        if (input$format == ".rda") {
-          saveFile <- try(save(myProfile, file = target), silent = TRUE)
+      if (isTRUE(input$saveProfile)) {
+        fmt <- input$format %||% ".rda"
+        target <- file.path(Sys.getenv("HOME"), paste0(filename, fmt))
+        
+        if (identical(fmt, ".rda")) {
+          # Save the object under the requested name inside the .rda
+          tmp_env <- new.env(parent = emptyenv())
+          tmp_env[[filename]] <- myProfile
+          saveFile <- try(save(list = filename, file = target, envir = tmp_env), silent = TRUE)
           alert_msg(saveFile, target)
+          
+          # Optionally also send a safe load command (no credentials in history)
+          if (rstudioapi::isAvailable()) {
+            rstudioapi::sendToConsole(paste0("load(", dQuote(target), ")"), execute = FALSE)
+          }
         } else {
           saveFile <- try(saveRDS(myProfile, file = target), silent = TRUE)
           alert_msg(saveFile, target)
+          
+          # Optionally also send a safe load command (no credentials in history)
+          if (rstudioapi::isAvailable()) {
+            rstudioapi::sendToConsole(
+              paste0(filename, " <- readRDS(", dQuote(target), ")"),
+              execute = FALSE
+            )
+          }
         }
       }
+      
       shiny::stopApp()
     })
     
@@ -283,6 +328,8 @@ create_user_profile_gui <- function() {
   viewer <- shiny::dialogViewer("Add")
   shiny::runGadget(ui, server, viewer = viewer)
 }
+
+
 
 #' Run Rnssp Shinyapps
 #'
