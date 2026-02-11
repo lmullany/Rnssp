@@ -14,22 +14,39 @@ Maintainer: Gbedegnon Roseric Azondekon <gazondekon@cdc.gov>
 Description: A collection of tools, functions, and Rmarkdown templates 
     that supports the National Syndromic and Surveillance Program Community of Practice.
 Depends: 
-    R (>= 3.6.0),
-    magrittr,
-    purrr,
-    dplyr,
-    data.table,
-    stringr,
-    tidyr,
-    slider,
-    lubridate,
-    sf
+    R (>= 3.6.0)
 License: Apache License (>= 2)
 URL: https://cdcgov.github.io/Rnssp, https://github.com/CDCgov/Rnssp
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.1
-Suggests: 
+RoxygenNote: 7.3.3
+Imports:
+    R6,
+    assertions,
+    cli,
+    data.table,
+    DT,
+    dplyr,
+    getPass,
+    httr,
+    janitor,
+    jsonlite,
+    lubridate,
+    magrittr,
+    miniUI (>= 0.1.1),
+    purrr,
+    readr,
+    rstudioapi (>= 0.5),
+    safer,
+    sf,
+    shiny (>= 0.13),
+    slider,
+    stringi,
+    stringr,
+    tibble,
+    tidyr,
+    yaml
+Suggests:
     testthat,
     knitr,
     rmarkdown,
@@ -42,21 +59,4 @@ Suggests:
     igraph,
     tidytext,
     widyr
-Imports: 
-    R6,
-    stringi,
-    assertions,
-    safer,
-    jsonlite,
-    httr,
-    getPass,
-    readr,
-    janitor,
-    tibble,
-    yaml,
-    DT,
-    cli,
-    shiny (>= 0.13),
-    miniUI (>= 0.1.1),
-    rstudioapi (>= 0.5)
 VignetteBuilder: knitr
