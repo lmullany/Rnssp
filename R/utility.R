@@ -2,7 +2,7 @@
 #'
 #' Prompt the user for a password. This function is a wrapper for the \code{\link[getPass]{getPass}} function.
 #'
-#' @inheritParams getPass::getPass
+#' @param prompt Character string shown to the user
 #' @return a character string
 #'
 #' @seealso \code{\link[getPass]{getPass}}
