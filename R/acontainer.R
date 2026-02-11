@@ -1,10 +1,12 @@
 #' A \code{NSSPContainer} Class to store a value or an object
 #'
 #' @description
-#' An object of class \code{NSSPContainer} stores a value
+#' An object of class \code{NSSPContainer} stores a value.
 #'
 #' @details
-#' The \code{NSSPContainer} class is used to encapsulate a value or an object
+#' The \code{NSSPContainer} class is used to encapsulate a value or an object.
+#'
+#' @field value Get the stored value.
 NSSPContainer <- R6::R6Class(
   "NSSPContainer",
   private = list(
@@ -16,11 +18,11 @@ NSSPContainer <- R6::R6Class(
     }
   ),
   public = list(
-
+    
     #' @description
     #' Initializes a new NSSPContainer object.
-    #' @param entry an object or value to be stored
-    #' @return A new \code{NSSPContainer} object
+    #' @param entry An object or value to be stored.
+    #' @return A new \code{NSSPContainer} object.
     initialize = function(entry) {
       if (missing(entry)) {
         private$..value
