@@ -50,7 +50,6 @@
 #'
 #' head(df_switch)
 #'
-#'
 #' \dontrun{
 #' # Example 3: Data from NSSP-ESSENCE
 #' library(Rnssp)
@@ -110,7 +109,6 @@
 #'
 alert_switch <- function(df, t = date, y = count, B = 28,
                          g = 2, w1 = 0.4, w2 = 0.9) {
-
   # Check baseline length argument
   if (B < 7) {
     cli::cli_abort("Error in {.fn alert_switch}: baseline length argument {.var B} must be greater than or equal to 7")

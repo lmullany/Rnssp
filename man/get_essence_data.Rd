@@ -34,7 +34,6 @@ a dataframe or a character string.
 Get ESSENCE API data.
 }
 \examples{
-
 \dontrun{
 myProfile <- create_profile(askme("Enter your username:"), askme())
 

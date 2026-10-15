@@ -45,12 +45,14 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
     ref_dates_shifted <- ref_dates - wday_gaps
 
     floor_ceiling_dates <- if_else(ref_dates_shifted > ref_dates,
-                                   ref_dates_shifted - 7,
-                                   ref_dates_shifted + 7)
+      ref_dates_shifted - 7,
+      ref_dates_shifted + 7
+    )
 
     center_dates <- sort(if_else(abs(ref_dates - floor_ceiling_dates) <
-                                   abs(ref_dates - ref_dates_shifted),
-                                 floor_ceiling_dates, ref_dates_shifted))
+      abs(ref_dates - ref_dates_shifted),
+    floor_ceiling_dates, ref_dates_shifted
+    ))
 
     base_start <- sort((center_dates - 7 * w))[1:B]
 
@@ -95,15 +97,17 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
     diag <- as.numeric(hatvalues(mod))
 
     ambscombe_resid <- ((3 / 2) * (y_observed^(2 / 3) * (y_fit^(-1 / 6)) -
-                                     sqrt(y_fit))) / (sqrt(phi * (1 - diag)))
+      sqrt(y_fit))) / (sqrt(phi * (1 - diag)))
 
     scaled <- if_else(ambscombe_resid > 1, 1 / (ambscombe_resid^2), 1)
     gamma <- length(ambscombe_resid) / sum(scaled)
     omega <- if_else(ambscombe_resid > 1, gamma / (ambscombe_resid^2), gamma)
 
     mod_weighted <- suppressWarnings(
-      glm(as.formula(mod_formula), family = quasipoisson(link = "log"),
-          weights = omega)
+      glm(as.formula(mod_formula),
+        family = quasipoisson(link = "log"),
+        weights = omega
+      )
     )
 
     phi_weighted <- max(summary(mod_weighted)$dispersion, 1)
@@ -131,7 +135,7 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
     )
 
     time_significant <- (pred$fit <= max(base_counts, na.rm = TRUE) &
-                           time_pval_weighted < 0.05)
+      time_pval_weighted < 0.05)
 
     # Check 2 conditions
 
@@ -159,15 +163,17 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
         diag <- as.numeric(hatvalues(mod))
 
         ambscombe_resid <- ((3 / 2) * (y_observed^(2 / 3) * (y_fit^(-1 / 6)) -
-                                         sqrt(y_fit))) / (sqrt(phi * (1 - diag)))
+          sqrt(y_fit))) / (sqrt(phi * (1 - diag)))
 
         scaled <- if_else(ambscombe_resid > 1, 1 / (ambscombe_resid^2), 1)
         gamma <- length(ambscombe_resid) / sum(scaled)
         omega <- if_else(ambscombe_resid > 1, gamma / (ambscombe_resid^2), gamma)
 
         mod_weighted <- suppressWarnings(
-          glm(as.formula(mod_formula), family = quasipoisson(link = "log"),
-              weights = omega)
+          glm(as.formula(mod_formula),
+            family = quasipoisson(link = "log"),
+            weights = omega
+          )
         )
 
         phi_weighted <- max(summary(mod_weighted)$dispersion, 1)
@@ -203,7 +209,7 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
     se_pred <- sqrt((4 / 9) * predicted[i]^(1 / 3) * tau)
 
     upper[i] <- max(0, (predicted[i]^(2 / 3) + qnorm(0.95) *
-                          se_pred)^(3 / 2), na.rm = TRUE)
+      se_pred)^(3 / 2), na.rm = TRUE)
 
     alert_score[i] <- if_else(
       !is.na(upper[i]),
@@ -264,7 +270,7 @@ seasonal_groups <- function(B = 4, g = 27, w = 3, p = 10,
 
     for (j in 1:(p - 1)) {
       fct_levels[(csum_h[i] + 2 * w + 1 + cum_lengths[j]):
-                   (csum_h[i] + 2 * w + cum_lengths[j + 1])] <- j
+      (csum_h[i] + 2 * w + cum_lengths[j + 1])] <- j
     }
   }
 
@@ -322,12 +328,14 @@ farrington_modified <- function(df, t = date, y = count,
 
     ref_dates_shifted <- ref_dates - wday_gaps
     floor_ceiling_dates <- if_else(ref_dates_shifted > ref_dates,
-                                   ref_dates_shifted - 7, ref_dates_shifted + 7)
+      ref_dates_shifted - 7, ref_dates_shifted + 7
+    )
 
     center_dates <- sort(
       if_else(
         abs(ref_dates - floor_ceiling_dates) < abs(ref_dates - ref_dates_shifted),
-        floor_ceiling_dates, ref_dates_shifted)
+        floor_ceiling_dates, ref_dates_shifted
+      )
     )
 
     base_start <- sort((center_dates - 7 * w))[1:B]
@@ -347,7 +355,8 @@ farrington_modified <- function(df, t = date, y = count,
 
     mod <- suppressWarnings(
       glm(base_counts ~ 1 + base_dates + fct_levels,
-          family = quasipoisson(link = "log"))
+        family = quasipoisson(link = "log")
+      )
     )
 
     if (!mod$converged) {
@@ -380,15 +389,17 @@ farrington_modified <- function(df, t = date, y = count,
     diag <- as.numeric(hatvalues(mod))
 
     ambscombe_resid <- ((3 / 2) * (y_observed^(2 / 3) * (y_fit^(-1 / 6)) -
-                                     sqrt(y_fit))) / (sqrt(phi * (1 - diag)))
+      sqrt(y_fit))) / (sqrt(phi * (1 - diag)))
 
     scaled <- if_else(ambscombe_resid > 2.58, 1 / (ambscombe_resid^2), 1)
     gamma <- length(ambscombe_resid) / sum(scaled)
     omega <- if_else(ambscombe_resid > 2.58, gamma / (ambscombe_resid^2), gamma)
 
     mod_weighted <- suppressWarnings(
-      glm(as.formula(mod_formula), family = quasipoisson(link = "log"),
-          weights = omega)
+      glm(as.formula(mod_formula),
+        family = quasipoisson(link = "log"),
+        weights = omega
+      )
     )
 
     phi_weighted <- max(summary(mod_weighted)$dispersion, 1)
@@ -417,7 +428,7 @@ farrington_modified <- function(df, t = date, y = count,
     )
 
     time_significant <- (pred$fit <= max(base_counts, na.rm = TRUE) &
-                           time_pval_weighted < 0.05)
+      time_pval_weighted < 0.05)
 
     # Check 2 conditions
 
@@ -452,11 +463,14 @@ farrington_modified <- function(df, t = date, y = count,
         scaled <- if_else(ambscombe_resid > 2.58, 1 / (ambscombe_resid^2), 1)
         gamma <- length(ambscombe_resid) / sum(scaled)
         omega <- if_else(ambscombe_resid > 2.58,
-                         gamma / (ambscombe_resid^2), gamma)
+          gamma / (ambscombe_resid^2), gamma
+        )
 
         mod_weighted <- suppressWarnings(
-          glm(as.formula(mod_formula), family = quasipoisson(link = "log"),
-              weights = omega)
+          glm(as.formula(mod_formula),
+            family = quasipoisson(link = "log"),
+            weights = omega
+          )
         )
 
         phi_weighted <- max(summary(mod_weighted)$dispersion, 1)
@@ -681,7 +695,6 @@ farrington_modified <- function(df, t = date, y = count,
 #'
 alert_farrington <- function(df, t = date, y = count, B = 4, g = 27,
                              w = 3, p = 10, method = "original") {
-
   # Ensure that df is a dataframe
   if (!is.data.frame(df)) {
     cli::cli_abort("Argument {.var df} must be a dataframe, tibble, or data.table")
@@ -752,8 +765,10 @@ alert_farrington <- function(df, t = date, y = count, B = 4, g = 27,
         mutate({{ t }} := as.Date(!!t)) %>%
         nest(data_split = -all_of(groups)) %>%
         mutate(
-          anomalies = map(.x = data_split, .f = farrington_modified,
-                          t = !!t, y = !!y, B = B, g = g, w = w, p = p)
+          anomalies = map(
+            .x = data_split, .f = farrington_modified,
+            t = !!t, y = !!y, B = B, g = g, w = w, p = p
+          )
         ) %>%
         unnest(c(data_split, anomalies)) %>%
         mutate(alert = ifelse(is.na(alert), "grey", alert))
@@ -762,8 +777,10 @@ alert_farrington <- function(df, t = date, y = count, B = 4, g = 27,
         mutate({{ t }} := as.Date(!!t)) %>%
         nest(data_split = -all_of(groups)) %>%
         mutate(
-          anomalies = map(.x = data_split, .f = farrington_original,
-                          t = !!t, y = !!y, B = B, w = w)
+          anomalies = map(
+            .x = data_split, .f = farrington_original,
+            t = !!t, y = !!y, B = B, w = w
+          )
         ) %>%
         unnest(c(data_split, anomalies)) %>%
         mutate(alert = ifelse(is.na(alert), "grey", alert))
@@ -777,8 +794,10 @@ alert_farrington <- function(df, t = date, y = count, B = 4, g = 27,
         mutate({{ t }} := as.Date(!!t)) %>%
         nest(data_split = everything()) %>%
         mutate(
-          anomalies = map(.x = data_split, .f = farrington_modified,
-                          t = !!t, y = !!y, B = B, g = g, w = w, p = p)
+          anomalies = map(
+            .x = data_split, .f = farrington_modified,
+            t = !!t, y = !!y, B = B, g = g, w = w, p = p
+          )
         ) %>%
         unnest(c(data_split, anomalies)) %>%
         mutate(alert = ifelse(is.na(alert), "grey", alert))
@@ -787,8 +806,10 @@ alert_farrington <- function(df, t = date, y = count, B = 4, g = 27,
         mutate({{ t }} := as.Date(!!t)) %>%
         nest(data_split = everything()) %>%
         mutate(
-          anomalies = map(.x = data_split, .f = farrington_original,
-                          t = !!t, y = !!y, B = B, w = w)
+          anomalies = map(
+            .x = data_split, .f = farrington_original,
+            t = !!t, y = !!y, B = B, w = w
+          )
         ) %>%
         unnest(c(data_split, anomalies)) %>%
         mutate(alert = ifelse(is.na(alert), "grey", alert))

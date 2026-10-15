@@ -110,7 +110,7 @@ Alternatively, the example below with the `get_api_response()` function achieves
 url <- "https://essence.syndromicsurveillance.org/nssp_essence/api/timeSeries?endDate=9Feb2021&medicalGrouping=injury&percentParam=noPercent&geographySystem=hospitaldhhsregion&datasource=va_hospdreg&detector=probrepswitch&startDate=11Nov2020&timeResolution=daily&medicalGroupingSystem=essencesyndromes&userId=455&aqtTarget=TimeSeries"
 
 # pull time series data
-api_response <- get_api_response(url) 
+api_response <- get_api_response(url)
 
 api_response_content <- httr::content(api_response, as = "text")
 api_data_ts2 <- jsonlite::fromJSON(api_response_content)
@@ -160,7 +160,7 @@ url <- "https://essence.syndromicsurveillance.org/nssp_essence/api/tableBuilder/
 api_data_tb_csv <- get_api_data(url, fromCSV = TRUE)
 
 # Inspecting api_data_graph object
-class(api_data_tb_csv) 
+class(api_data_tb_csv)
 
 # glimpse(api_data_tb_csv)
 ```
@@ -192,7 +192,7 @@ url <- "https://essence.syndromicsurveillance.org/nssp_essence/api/dataDetails/c
 # Data Pull from ESSENCE
 api_data_dd_csv <- get_api_data(url, fromCSV = TRUE)
 
-class(api_data_dd_csv)  
+class(api_data_dd_csv)
 
 # glimpse(api_data_dd_csv)
 ```

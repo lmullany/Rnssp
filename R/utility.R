@@ -118,9 +118,9 @@ add_rmd_template <- function(template = NULL, pkg = "Rnssp", restart = TRUE, ver
     cli::cli({
       cli::cli_alert_success("Template {.field {template_folder}} has been successfully added in {.file {file.path(exDir, template_folder)}}.")
     })
-    if(restart & "rstudioapi" %in% .packages(all.available = TRUE)){
+    if (restart & "rstudioapi" %in% .packages(all.available = TRUE)) {
       rstudioapi::restartSession()
-    } else if(verbose) {
+    } else if (verbose) {
       cli::cli_alert_info("Please, restart your R session ({.kbd CTRL+SHIFT+F10} or {.kbd CMD+SHIFT+F10}) to update the template list!")
     }
   }
@@ -162,9 +162,9 @@ remove_rmd_template <- function(template, pkg = "Rnssp", recursive = TRUE,
         cli::cli_alert_success("Template {.field {template}} has been successfully removed from package {.pkg {pkg}}.")
       })
     }
-    if(restart & "rstudioapi" %in% .packages(all.available = TRUE)){
+    if (restart & "rstudioapi" %in% .packages(all.available = TRUE)) {
       rstudioapi::restartSession()
-    } else if(verbose) {
+    } else if (verbose) {
       cli::cli_alert_info("Please, restart your R session ({.kbd CTRL+SHIFT+F10} or {.kbd CMD+SHIFT+F10}) to update the template list!")
     }
   }
@@ -238,12 +238,12 @@ change_dates <- function(url, start_date = NULL, end_date = NULL) {
       str_trim()
   }
   new_startd <- ifelse(nchar(new_start) > 7,
-                       as.Date(new_start, "%e%b%Y"),
-                       as.Date(new_start, "%e%b%y")
+    as.Date(new_start, "%e%b%Y"),
+    as.Date(new_start, "%e%b%y")
   )
   new_endd <- ifelse(nchar(new_end) > 7,
-                     as.Date(new_end, "%e%b%Y"),
-                     as.Date(new_end, "%e%b%y")
+    as.Date(new_end, "%e%b%Y"),
+    as.Date(new_end, "%e%b%y")
   )
   if (new_startd > new_endd) {
     cli::cli_abort("Start Date {.field {new_start}} is posterior to End Date {.field {new_end}}.")

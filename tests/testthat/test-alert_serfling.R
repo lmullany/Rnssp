@@ -20,7 +20,8 @@ test_that("alert_serfling functions as expected!", {
 
   df_serfling <- alert_serfling(df, baseline_end = as.Date("2020-03-01"))
   df2_serfling <- alert_serfling(group_by(df2, regions),
-                             baseline_end = as.Date("2020-03-01"))
+    baseline_end = as.Date("2020-03-01")
+  )
 
   expect(is.data.frame(df_serfling), failure_message = "alert_nbinom test fails!")
   expect_equal(length(df_serfling), length(df) + 7)

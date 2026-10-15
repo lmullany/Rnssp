@@ -14,7 +14,6 @@ Credentials <- R6::R6Class(
     ..password = NSSPContainer$new(NULL)
   ),
   public = list(
-
     #' @description
     #' Initializes a new Credentials object.
     #' @param username a string for username

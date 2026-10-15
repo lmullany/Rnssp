@@ -17,7 +17,7 @@
 create_profile <- function(
   username = askme("Please enter your username: "),
   password = askme()
-){
+) {
   Credentials$new(username = username, password = password)
 }
 
@@ -45,9 +45,9 @@ create_profile <- function(
 #' }
 #'
 create_token_profile <- function(
-    token = getPass::getPass("Enter/Paste a token: "),
-    auth_type = "Bearer"
-){
+  token = getPass::getPass("Enter/Paste a token: "),
+  auth_type = "Bearer"
+) {
   Token$new(token = token, auth_type = auth_type)
 }
 
@@ -73,9 +73,9 @@ create_token_profile <- function(
 #' }
 #'
 create_apikey_profile <- function(
-    api_key = getPass::getPass("Enter/Paste an API key: "),
-    key_name = "API-KEY"
-){
+  api_key = getPass::getPass("Enter/Paste an API key: "),
+  key_name = "API-KEY"
+) {
   Apikey$new(api_key = api_key, key_name = key_name)
 }
 
@@ -163,7 +163,7 @@ get_api_response <- function(url, profile = myProfile) {
 #' grid::grid.raster(img)
 #' }
 get_api_graph <- function(url, file_ext = ".png", profile = myProfile) {
-  if(!"get_api_graph" %in% names(profile)){
+  if (!"get_api_graph" %in% names(profile)) {
     cli::cli_alert_info("Outdated profile detected!")
     cli::cli_abort("Please create a new profile or use
                    {.fn get_api_tsgraph} instead!")
@@ -190,7 +190,6 @@ get_api_graph <- function(url, file_ext = ".png", profile = myProfile) {
 #' @export
 #'
 #' @examples
-#'
 #' \dontrun{
 #' myProfile <- create_profile(askme("Enter your username:"), askme())
 #'
@@ -245,13 +244,12 @@ get_essence_data <- function(url, start_date = NULL,
 
   url_new <- try(change_dates(url, start_date, end_date), silent = TRUE)
 
-  if(any(class(url_new) == "try-error")){
+  if (any(class(url_new) == "try-error")) {
     cli::cli_abort("URL is not of ESSENCE type. Check your URL or use
                    {.fn get_api_data} instead!")
   }
 
-  switch(
-    api_type,
+  switch(api_type,
     "timeSeries" = profile$get_api_data(url_new) %>%
       extract2("timeSeriesData"),
     "timeSeries/graph" = profile$get_api_graph(url_new) %>%

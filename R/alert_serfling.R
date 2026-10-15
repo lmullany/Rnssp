@@ -16,14 +16,13 @@
 #' @keywords internal
 #'
 serfling_model <- function(df, t, y, baseline_end) {
-
   t <- enquo(t)
   y <- enquo(y)
 
   input_data <- df %>%
     mutate(
-      t  = as.Date(!!t),
-      y  = as.numeric(!!y),
+      t = as.Date(!!t),
+      y = as.numeric(!!y),
       obs = row_number(),
       cos = cos((2 * pi * obs) / 52.18),
       sin = sin((2 * pi * obs) / 52.18),
@@ -36,8 +35,10 @@ serfling_model <- function(df, t, y, baseline_end) {
     filter(!epidemic_period)
 
   baseline_model <- lm(y ~ obs + cos + sin, data = baseline_data)
-  predict(baseline_model, newdata = input_data, se.fit = TRUE,
-          interval = "prediction", level = 0.90) %>%
+  predict(baseline_model,
+    newdata = input_data, se.fit = TRUE,
+    interval = "prediction", level = 0.90
+  ) %>%
     as.data.frame() %>%
     select(estimate = fit.fit, threshold = fit.upr) %>%
     bind_cols(input_data) %>%
@@ -101,40 +102,44 @@ serfling_model <- function(df, t, y, baseline_end) {
 #'
 #' head(ts1)
 #'
-#' df_serfling <- alert_serfling(ts1, t = date, y = cases,
-#'                             baseline_end = as.Date("2021-12-26"))
+#' df_serfling <- alert_serfling(ts1,
+#'   t = date, y = cases,
+#'   baseline_end = as.Date("2021-12-26")
+#' )
 #'
 #' head(df_serfling)
 #'
 #' ### Visualize alert
 #' df_serfling %>%
-#'  ggplot() +
-#'  theme_classic() +
-#'  geom_line(aes(x = date, y = cases), linewidth = 0.3) +
-#'  geom_line(aes(x = date, y = estimate), color = "blue", linewidth = 0.3) +
-#'  geom_line(aes(x = date, y = threshold), color = "red", linewidth = 0.3,
-#'             linetype = "dashed") +
-#'  geom_point(data = subset(df_serfling, alarm), aes(x = date, y = cases),
-#'             color = "red", shape = 21, size = 2.5) +
-#'  scale_y_continuous(
-#'    limits = c(0, 80),
-#'    expand = c(0, 0),
-#'    name = "Weekly Count"
-#'  ) +
-#'  scale_x_date(
-#'    breaks = seq.Date(from = min(ts1$date), to = max(ts1$date), by = "4 month"),
-#'    name = "MMWR Week Date"
-#'  ) +
-#'  theme(
-#'    axis.text.x = element_text(angle = 90, vjust = 0.5),
-#'    axis.ticks.length = unit(0.25, "cm")
-#'  ) +
-#'  labs(
-#'    title = "Original Serfling Method Results for Simulated Time Series #1",
-#'    subtitle = "Annual seasonality with moderate counts"
-#'  )
-#'
-#'
+#'   ggplot() +
+#'   theme_classic() +
+#'   geom_line(aes(x = date, y = cases), linewidth = 0.3) +
+#'   geom_line(aes(x = date, y = estimate), color = "blue", linewidth = 0.3) +
+#'   geom_line(aes(x = date, y = threshold),
+#'     color = "red", linewidth = 0.3,
+#'     linetype = "dashed"
+#'   ) +
+#'   geom_point(
+#'     data = subset(df_serfling, alarm), aes(x = date, y = cases),
+#'     color = "red", shape = 21, size = 2.5
+#'   ) +
+#'   scale_y_continuous(
+#'     limits = c(0, 80),
+#'     expand = c(0, 0),
+#'     name = "Weekly Count"
+#'   ) +
+#'   scale_x_date(
+#'     breaks = seq.Date(from = min(ts1$date), to = max(ts1$date), by = "4 month"),
+#'     name = "MMWR Week Date"
+#'   ) +
+#'   theme(
+#'     axis.text.x = element_text(angle = 90, vjust = 0.5),
+#'     axis.ticks.length = unit(0.25, "cm")
+#'   ) +
+#'   labs(
+#'     title = "Original Serfling Method Results for Simulated Time Series #1",
+#'     subtitle = "Annual seasonality with moderate counts"
+#'   )
 #'
 #' \dontrun{
 #' # Example 3: Data from NSSP-ESSENCE, national counts for CDC Respiratory Synctial Virus v1
@@ -167,13 +172,19 @@ serfling_model <- function(df, t, y, baseline_end) {
 #'   theme_classic() +
 #'   geom_line(aes(x = date, y = count), linewidth = 0.3) +
 #'   geom_line(aes(x = date, y = estimate), color = "blue", linewidth = 0.3) +
-#'   geom_line(aes(x = date, y = threshold), color = "red", linewidth = 0.3,
-#'             linetype = "dashed") +
-#'   geom_point(data = subset(df_serfling, alarm), aes(x = date, y = count),
-#'              color = "red", shape = 21, size = 2.5) +
+#'   geom_line(aes(x = date, y = threshold),
+#'     color = "red", linewidth = 0.3,
+#'     linetype = "dashed"
+#'   ) +
+#'   geom_point(
+#'     data = subset(df_serfling, alarm), aes(x = date, y = count),
+#'     color = "red", shape = 21, size = 2.5
+#'   ) +
 #'   scale_x_date(
-#'     breaks = seq.Date(from = min(df_serfling$date),
-#'                       to = max(df_serfling$date), by = "4 month"),
+#'     breaks = seq.Date(
+#'       from = min(df_serfling$date),
+#'       to = max(df_serfling$date), by = "4 month"
+#'     ),
 #'     name = "MMWR Week Date"
 #'   ) +
 #'   theme(
@@ -184,11 +195,9 @@ serfling_model <- function(df, t, y, baseline_end) {
 #'     title = "Original Serfling Method Results for Weekly ED Encounters",
 #'     subtitle = "Annual seasonality with moderate counts"
 #'   )
-#'
 #' }
 #'
 alert_serfling <- function(df, t = date, y = count, baseline_end) {
-
   t <- enquo(t)
   y <- enquo(y)
 
@@ -219,7 +228,8 @@ alert_serfling <- function(df, t = date, y = count, baseline_end) {
     pull(!!t)
 
   if (length(unique(seq.Date(min(baseline_dates), max(baseline_dates),
-                             by = "1 week"))) != baseline_n_wks) {
+    by = "1 week"
+  ))) != baseline_n_wks) {
     cli::cli_abort("Error in {.fn alert_serfling}: not all weeks in intended
                    baseline date range were found")
   }
@@ -233,12 +243,13 @@ alert_serfling <- function(df, t = date, y = count, baseline_end) {
     df %>%
       nest(data_split = -all_of(groups)) %>%
       mutate(
-        detection = map(.x = data_split, .f = serfling_model, t = !!t, y = !!y,
-                        baseline_end = baseline_end)
+        detection = map(
+          .x = data_split, .f = serfling_model, t = !!t, y = !!y,
+          baseline_end = baseline_end
+        )
       ) %>%
       select(-data_split) %>%
       unnest(detection)
-
   } else {
     unique_dates <- df %>%
       pull(!!t) %>%
@@ -252,9 +263,11 @@ alert_serfling <- function(df, t = date, y = count, baseline_end) {
     df %>%
       nest(data_split = everything()) %>%
       mutate(
-        detection = map(.x = data_split, .f = serfling_model, t = !!t, y = !!y,
-                        baseline_end = baseline_end)
-        ) %>%
+        detection = map(
+          .x = data_split, .f = serfling_model, t = !!t, y = !!y,
+          baseline_end = baseline_end
+        )
+      ) %>%
       select(-data_split) %>%
       unnest(detection)
   }

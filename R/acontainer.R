@@ -18,7 +18,6 @@ NSSPContainer <- R6::R6Class(
     }
   ),
   public = list(
-    
     #' @description
     #' Initializes a new NSSPContainer object.
     #' @param entry An object or value to be stored.

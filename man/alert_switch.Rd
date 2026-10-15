@@ -65,7 +65,6 @@ df_switch <- alert_switch(df, t = Date, y = percent)
 
 head(df_switch)
 
-
 \dontrun{
 # Example 3: Data from NSSP-ESSENCE
 library(Rnssp)

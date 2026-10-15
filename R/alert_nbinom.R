@@ -17,7 +17,6 @@
 #' @keywords internal
 #'
 nb_model <- function(df, t, y, baseline_end, include_time) {
-
   t <- enquo(t)
   y <- enquo(y)
 
@@ -63,8 +62,10 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
 
   predict_fit <- bind_cols(
     predict_data,
-    predict(baseline_model, newdata = predict_data, simulate_pi = FALSE,
-            se.fit = TRUE, type = "link") %>%
+    predict(baseline_model,
+      newdata = predict_data, simulate_pi = FALSE,
+      se.fit = TRUE, type = "link"
+    ) %>%
       as.data.frame() %>%
       dplyr::select(fit_link = fit, se_link = se.fit) %>%
       mutate(
@@ -75,7 +76,6 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
   )
 
   if (!include_time) {
-
     time_included <- FALSE
 
     baseline_model <- suppressWarnings(MASS::glm.nb(y ~ cos + sin, data = baseline_data))
@@ -98,8 +98,10 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
 
     predict_fit <- bind_cols(
       predict_data,
-      predict(baseline_model, newdata = predict_data, simulate_pi = FALSE,
-              se.fit = TRUE, type = "link") %>%
+      predict(baseline_model,
+        newdata = predict_data, simulate_pi = FALSE,
+        se.fit = TRUE, type = "link"
+      ) %>%
         as.data.frame() %>%
         dplyr::select(fit_link = fit, se_link = se.fit) %>%
         mutate(
@@ -108,19 +110,17 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
           threshold = qnbinom(1 - 0.05, mu = upper_ci, size = theta)
         )
     )
-
   }
 
   bind_rows(baseline_fit, predict_fit) %>%
     arrange(!!t) %>%
-    `rownames<-`( NULL ) %>%
+    `rownames<-`(NULL) %>%
     mutate(
       split = factor(split, levels = c("Baseline Period", "Prediction Period")),
       alarm = ifelse(!!y > threshold, TRUE, FALSE),
       time_term = time_included
     ) %>%
     select(-(t:sin), -fit_link, -se_link, -upper_ci)
-
 }
 
 
@@ -178,40 +178,45 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
 #'
 #' head(ts)
 #'
-#' df_nbinom <- alert_nbinom(ts, t = date, y = cases,
-#'                        baseline_end = as.Date("2021-12-26"))
+#' df_nbinom <- alert_nbinom(ts,
+#'   t = date, y = cases,
+#'   baseline_end = as.Date("2021-12-26")
+#' )
 #'
 #' head(df_nbinom)
 #'
 #'
 #' ## Visualize alert
 #' df_nbinom %>%
-#'  ggplot() +
-#'  theme_classic() +
-#'  geom_line(aes(x = date, y = cases), linewidth = 0.3) +
-#'  geom_line(aes(x = date, y = estimate), color = "blue", linewidth = 0.3) +
-#'  geom_line(aes(x = date, y = threshold), color = "red", linewidth = 0.3,
-#'             linetype = "dashed") +
-#'  geom_point(data = subset(df_nbinom, alarm), aes(x = date, y = cases),
-#'             color = "red", shape = 21, size = 2.5) +
-#'  scale_y_continuous(
-#'    limits = c(0, 80),
-#'    expand = c(0, 0),
-#'    name = "Weekly Count"
-#'  ) +
-#'  scale_x_date(
-#'    breaks = seq.Date(from = min(ts$date), to = max(ts$date), by = "4 month"),
-#'    name = "MMWR Week Date"
-#'  ) +
-#'  theme(
-#'    axis.text.x = element_text(angle = 90, vjust = 0.5),
-#'    axis.ticks.length = unit(0.25, "cm")
-#'  ) +
-#'  labs(
-#'    title = "Negative Binomial Regression Algorithm Results for Simulated Time Series #1",
-#'    subtitle = "Annual seasonality with moderate counts"
-#'  )
-#'
+#'   ggplot() +
+#'   theme_classic() +
+#'   geom_line(aes(x = date, y = cases), linewidth = 0.3) +
+#'   geom_line(aes(x = date, y = estimate), color = "blue", linewidth = 0.3) +
+#'   geom_line(aes(x = date, y = threshold),
+#'     color = "red", linewidth = 0.3,
+#'     linetype = "dashed"
+#'   ) +
+#'   geom_point(
+#'     data = subset(df_nbinom, alarm), aes(x = date, y = cases),
+#'     color = "red", shape = 21, size = 2.5
+#'   ) +
+#'   scale_y_continuous(
+#'     limits = c(0, 80),
+#'     expand = c(0, 0),
+#'     name = "Weekly Count"
+#'   ) +
+#'   scale_x_date(
+#'     breaks = seq.Date(from = min(ts$date), to = max(ts$date), by = "4 month"),
+#'     name = "MMWR Week Date"
+#'   ) +
+#'   theme(
+#'     axis.text.x = element_text(angle = 90, vjust = 0.5),
+#'     axis.ticks.length = unit(0.25, "cm")
+#'   ) +
+#'   labs(
+#'     title = "Negative Binomial Regression Algorithm Results for Simulated Time Series #1",
+#'     subtitle = "Annual seasonality with moderate counts"
+#'   )
 #'
 #' \dontrun{
 #' # Example 3: Data from NSSP-ESSENCE, national counts for CDC Respiratory Synctial Virus v1
@@ -243,10 +248,14 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
 #'   ggplot() +
 #'   geom_line(aes(x = date, y = count), linewidth = 0.3) +
 #'   geom_line(aes(x = date, y = estimate), color = "blue", linewidth = 0.3) +
-#'   geom_line(aes(x = date, y = threshold), color = "red", linewidth = 0.3,
-#'             linetype = "dashed") +
-#'   geom_point(data = subset(df_nbinom, alarm),
-#'              aes(x = date, y = count), color = "red", size = 0.7) +
+#'   geom_line(aes(x = date, y = threshold),
+#'     color = "red", linewidth = 0.3,
+#'     linetype = "dashed"
+#'   ) +
+#'   geom_point(
+#'     data = subset(df_nbinom, alarm),
+#'     aes(x = date, y = count), color = "red", size = 0.7
+#'   ) +
 #'   theme_classic() +
 #'   scale_x_date(
 #'     date_breaks = "6 month",
@@ -272,11 +281,9 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
 #'     y = Inf, label = "End of baseline\nMarch 1, 2020",
 #'     family = "Candara", vjust = 1.7, size = 3
 #'   )
-#'
 #' }
 #'
 alert_nbinom <- function(df, t = date, y = count, include_time = TRUE, baseline_end) {
-
   t <- enquo(t)
   y <- enquo(y)
 
@@ -307,7 +314,8 @@ alert_nbinom <- function(df, t = date, y = count, include_time = TRUE, baseline_
     pull(!!t)
 
   if (length(unique(seq.Date(min(baseline_dates), max(baseline_dates),
-                             by = "1 week"))) != baseline_n_wks) {
+    by = "1 week"
+  ))) != baseline_n_wks) {
     cli::cli_abort("Error in {.fn alert_nbinom}: not all weeks in intended
                    baseline date range were found")
   }
@@ -334,12 +342,13 @@ alert_nbinom <- function(df, t = date, y = count, include_time = TRUE, baseline_
     df %>%
       nest(data_split = -all_of(groups)) %>%
       mutate(
-        detection = map(.x = data_split, .f = nb_model, t = !!t, y = !!y,
-                        baseline_end = baseline_end, include_time = include_time)
+        detection = map(
+          .x = data_split, .f = nb_model, t = !!t, y = !!y,
+          baseline_end = baseline_end, include_time = include_time
+        )
       ) %>%
       select(-data_split) %>%
       unnest(detection)
-
   } else {
     unique_dates <- df %>%
       pull(!!t) %>%
@@ -354,11 +363,12 @@ alert_nbinom <- function(df, t = date, y = count, include_time = TRUE, baseline_
     df %>%
       nest(data_split = everything()) %>%
       mutate(
-        detection = map(.x = data_split, .f = nb_model, t = !!t, y = !!y,
-                        baseline_end = baseline_end, include_time = include_time)
+        detection = map(
+          .x = data_split, .f = nb_model, t = !!t, y = !!y,
+          baseline_end = baseline_end, include_time = include_time
+        )
       ) %>%
       select(-data_split) %>%
       unnest(detection)
-
   }
 }

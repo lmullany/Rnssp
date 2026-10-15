@@ -14,7 +14,6 @@ Apikey <- R6::R6Class(
     ..key_name = NULL
   ),
   public = list(
-
     #' @description
     #' Initializes a new Credentials object.
     #' @param api_key a string for API key
@@ -43,7 +42,7 @@ Apikey <- R6::R6Class(
       } else {
         assertions::assert_string(url)
         headers <- list()
-        headers[[private$..key_name]] = private$..api_key$value %>%
+        headers[[private$..key_name]] <- private$..api_key$value %>%
           safer::decrypt_string(., private$..__$value)
         res <- url %>%
           httr::GET(., httr::add_headers(unlist(headers)))
@@ -72,11 +71,13 @@ Apikey <- R6::R6Class(
       assertions::assert_string(url)
       graph <- tempfile(fileext = file_ext)
       headers <- list()
-      headers[[private$..key_name]] = private$..api_key$value %>%
+      headers[[private$..key_name]] <- private$..api_key$value %>%
         safer::decrypt_string(., private$..__$value)
       apir <- url %>%
-        httr::GET(., httr::add_headers(unlist(headers)),
-                  httr::write_disk(graph, overwrite = TRUE))
+        httr::GET(
+          ., httr::add_headers(unlist(headers)),
+          httr::write_disk(graph, overwrite = TRUE)
+        )
       apir$request$headers <- NULL
       headers <- NULL
       cli::cli_alert_info(httr::http_status(apir$status_code)$message)

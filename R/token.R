@@ -14,7 +14,6 @@ Token <- R6::R6Class(
     ..auth_type = NULL
   ),
   public = list(
-
     #' @description
     #' Initializes a new Credentials object.
     #' @param token a string for token

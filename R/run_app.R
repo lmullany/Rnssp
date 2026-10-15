@@ -19,7 +19,7 @@ run_app <- function(app, launch_browser = TRUE) {
     paste0("{.var ", available_apps, "}", collapse = "', ")
   )
 
-  if(missing(app) || !nzchar(app) || !app %in% available_apps) {
+  if (missing(app) || !nzchar(app) || !app %in% available_apps) {
     cli::cli_abort(
       paste0(
         "Please execute {.fn run_app} with a valid app name as an argument.\n",
@@ -28,7 +28,7 @@ run_app <- function(app, launch_browser = TRUE) {
     )
   }
 
-  if(app %in% local_apps){
+  if (app %in% local_apps) {
     app_dir <- system.file("shiny-apps", app, package = "Rnssp")
     suppressWarnings(
       shiny::runApp(
