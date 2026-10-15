@@ -2,6 +2,7 @@
 % Please edit documentation in R/Rnssp-package.R
 \docType{package}
 \name{Rnssp}
+\alias{Rnssp-package}
 \alias{Rnssp}
 \title{Tools, Functions, Shapefiles data, and Rmarkdown templates to work with Syndromic Surveillance data}
 \description{
@@ -58,3 +59,4 @@ Useful links:
 \author{
 Gbedegnon Roseric Azondekon (\email{gazondekon@cdc.gov})
 }
+\keyword{internal}

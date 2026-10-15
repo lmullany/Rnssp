@@ -4,10 +4,17 @@
 \alias{NSSPContainer}
 \title{A \code{NSSPContainer} Class to store a value or an object}
 \description{
-An object of class \code{NSSPContainer} stores a value
+An object of class \code{NSSPContainer} stores a value.
 }
 \details{
-The \code{NSSPContainer} class is used to encapsulate a value or an object
+The \code{NSSPContainer} class is used to encapsulate a value or an object.
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{value}}{Get the stored value.}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -28,12 +35,12 @@ Initializes a new NSSPContainer object.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{entry}}{an object or value to be stored}
+\item{\code{entry}}{An object or value to be stored.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A new \code{NSSPContainer} object
+A new \code{NSSPContainer} object.
 }
 }
 \if{html}{\out{<hr>}}

@@ -6,6 +6,9 @@
 \usage{
 askme(prompt = "Please enter your password: ")
 }
+\arguments{
+\item{prompt}{Character string shown to the user}
+}
 \value{
 a character string
 }
