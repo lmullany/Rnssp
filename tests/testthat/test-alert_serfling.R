@@ -19,7 +19,7 @@ test_that("alert_serfling functions as expected!", {
   )
 
   df_serfling <- alert_serfling(df, baseline_end = as.Date("2020-03-01"))
-  df2_serfling <- alert_serfling(group_by(df2, regions),
+  df2_serfling <- alert_serfling(dplyr::group_by(df2, regions),
     baseline_end = as.Date("2020-03-01")
   )
 

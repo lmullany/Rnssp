@@ -81,23 +81,23 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
     }
 
     if (is.null(year) | current_year) {
-      path <- str_split(root_folders, "</A><br>") %>%
-        magrittr::extract2(1) %>%
-        str_extract_all("pub/Health_Statistics/NCHS/Publications/ICD10CM/\\d{4}/") %>%
-        compact() %>%
-        tibble::enframe() %>%
-        mutate(year = as.numeric(str_extract(value, "\\d{4}"))) %>%
-        filter(year == max(year)) %>%
-        pull(value) %>%
+      path <- stringr::str_split(root_folders, "</A><br>") |>
+        magrittr::extract2(1) |>
+        stringr::str_extract_all("pub/Health_Statistics/NCHS/Publications/ICD10CM/\\d{4}/") |>
+        purrr::compact() |>
+        tibble::enframe() |>
+        dplyr::mutate(year = as.numeric(stringr::str_extract(value, "\\d{4}"))) |>
+        dplyr::filter(year == max(year)) |>
+        dplyr::pull(value) |>
         as.character()
 
-      recent_year <- str_extract(path, "\\d{4}")
+      recent_year <- stringr::str_extract(path, "\\d{4}")
       file_year <- recent_year
 
       path_files <- readLines(paste0("https://ftp.cdc.gov/", path), warn = FALSE)[3]
 
       file_list <- unlist(
-        str_extract_all(
+        stringr::str_extract_all(
           path_files,
           pattern = paste0(
             path, "[a-zA-Z\\d-_ %20]+\\w+(?:\\.(?:xlsx|pdf|zip|txt))?"
@@ -138,27 +138,27 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
                          FTP server is currently unresponsive.")
         }
 
-        file_name <- unzip(temp_file, list = TRUE) %>%
-          filter(
+        file_name <- unzip(temp_file, list = TRUE) |>
+          dplyr::filter(
             Name == paste0("Code Descriptions/icd10cm-codes-", file_year, ".txt") | Name == paste0("icd10cm-codes-", file_year, ".txt")
-          ) %>%
-          pull(Name)
+          ) |>
+          dplyr::pull(Name)
 
         unzip(temp_file, files = file_name, exdir = temp_dir, overwrite = TRUE)
 
         file_path <- file.path(temp_dir, file_name)
 
-        icd_dictionary <- fread(file_path, sep = "\t", header = FALSE) %>%
-          setnames(old = "V1", new = "code_combo") %>%
-          as.data.frame() %>%
-          mutate(
-            code_combo = str_replace_all(code_combo, "\\s{2,4}", "_"),
-            code_combo = str_replace_all(code_combo, "(?<=^[[:alnum:]]{7})\\s{1}", "_")
-          ) %>%
-          separate(code_combo, c("code", "description"), sep = "_") %>%
-          mutate(
-            code = str_squish(code),
-            description = str_squish(description),
+        icd_dictionary <- fread(file_path, sep = "\t", header = FALSE) |>
+          setnames(old = "V1", new = "code_combo") |>
+          as.data.frame() |>
+          dplyr::mutate(
+            code_combo = stringr::str_replace_all(code_combo, "\\s{2,4}", "_"),
+            code_combo = stringr::str_replace_all(code_combo, "(?<=^[[:alnum:]]{7})\\s{1}", "_")
+          ) |>
+          tidyr::separate(code_combo, c("code", "description"), sep = "_") |>
+          dplyr::mutate(
+            code = stringr::str_squish(code),
+            description = stringr::str_squish(description),
             set = paste("ICD-10", file_year)
           )
       }
@@ -179,44 +179,44 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
                          CMS website is currently unresponsive.")
       }
 
-      file_name <- unzip(temp_file, list = TRUE) %>%
-        filter(Name == "icd10cm_codes_2024.txt") %>%
-        pull(Name)
+      file_name <- unzip(temp_file, list = TRUE) |>
+        dplyr::filter(Name == "icd10cm_codes_2024.txt") |>
+        dplyr::pull(Name)
 
       unzip(temp_file, files = file_name, exdir = temp_dir, overwrite = TRUE)
 
       file_path <- file.path(temp_dir, file_name)
 
-      icd_dictionary <- fread(file_path, sep = "\t", header = FALSE) %>%
-        setnames(old = "V1", new = "code_combo") %>%
-        as.data.frame() %>%
-        mutate(
-          code_combo = str_replace_all(code_combo, "\\s{2,4}", "_"),
-          code_combo = str_replace_all(code_combo, "(?<=^[[:alnum:]]{7})\\s{1}", "_")
-        ) %>%
-        separate(code_combo, c("code", "description"), sep = "_") %>%
-        mutate(
-          code = str_squish(code),
-          description = str_squish(description),
+      icd_dictionary <- fread(file_path, sep = "\t", header = FALSE) |>
+        setnames(old = "V1", new = "code_combo") |>
+        as.data.frame() |>
+        dplyr::mutate(
+          code_combo = stringr::str_replace_all(code_combo, "\\s{2,4}", "_"),
+          code_combo = stringr::str_replace_all(code_combo, "(?<=^[[:alnum:]]{7})\\s{1}", "_")
+        ) |>
+        tidyr::separate(code_combo, c("code", "description"), sep = "_") |>
+        dplyr::mutate(
+          code = stringr::str_squish(code),
+          description = stringr::str_squish(description),
           set = paste("ICD-10", file_year)
         )
     } else if (as.numeric(year) == 2023) {
       file_year <- year
 
-      path <- str_split(root_folders, "</A><br>") %>%
-        magrittr::extract2(1) %>%
-        str_extract_all("pub/Health_Statistics/NCHS/Publications/ICD10CM/\\d{4}/") %>%
-        compact() %>%
-        tibble::enframe() %>%
-        mutate(year = as.numeric(str_extract(value, "\\d{4}"))) %>%
-        filter(year == 2023) %>%
-        pull(value) %>%
+      path <- stringr::str_split(root_folders, "</A><br>") |>
+        magrittr::extract2(1) |>
+        stringr::str_extract_all("pub/Health_Statistics/NCHS/Publications/ICD10CM/\\d{4}/") |>
+        purrr::compact() |>
+        tibble::enframe() |>
+        dplyr::mutate(year = as.numeric(stringr::str_extract(value, "\\d{4}"))) |>
+        dplyr::filter(year == 2023) |>
+        dplyr::pull(value) |>
         as.character()
 
       path_files <- readLines(paste0("https://ftp.cdc.gov/", path), warn = FALSE)[3]
 
       file_list <- unlist(
-        str_extract_all(
+        stringr::str_extract_all(
           path_files,
           pattern = paste0(
             path, "[a-zA-Z\\d-_ %20]+\\w+(?:\\.(?:xlsx|pdf|zip|txt))?"
@@ -257,27 +257,27 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
                          FTP server is currently unresponsive.")
         }
 
-        file_name <- unzip(temp_file, list = TRUE) %>%
-          filter(
+        file_name <- unzip(temp_file, list = TRUE) |>
+          dplyr::filter(
             Name == paste0("Code Descriptions/icd10cm-codes-", file_year, ".txt") | Name == paste0("icd10cm-codes-", file_year, ".txt")
-          ) %>%
-          pull(Name)
+          ) |>
+          dplyr::pull(Name)
 
         unzip(temp_file, files = file_name, exdir = temp_dir, overwrite = TRUE)
 
         file_path <- file.path(temp_dir, file_name)
 
-        icd_dictionary <- fread(file_path, sep = "\t", header = FALSE) %>%
-          setnames(old = "V1", new = "code_combo") %>%
-          as.data.frame() %>%
-          mutate(
-            code_combo = str_replace_all(code_combo, "\\s{2,4}", "_"),
-            code_combo = str_replace_all(code_combo, "(?<=^[[:alnum:]]{7})\\s{1}", "_")
-          ) %>%
-          separate(code_combo, c("code", "description"), sep = "_") %>%
-          mutate(
-            code = str_squish(code),
-            description = str_squish(description),
+        icd_dictionary <- fread(file_path, sep = "\t", header = FALSE) |>
+          setnames(old = "V1", new = "code_combo") |>
+          as.data.frame() |>
+          dplyr::mutate(
+            code_combo = stringr::str_replace_all(code_combo, "\\s{2,4}", "_"),
+            code_combo = stringr::str_replace_all(code_combo, "(?<=^[[:alnum:]]{7})\\s{1}", "_")
+          ) |>
+          tidyr::separate(code_combo, c("code", "description"), sep = "_") |>
+          dplyr::mutate(
+            code = stringr::str_squish(code),
+            description = stringr::str_squish(description),
             set = paste("ICD-10", file_year)
           )
       }
@@ -286,17 +286,17 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
       path <- paste0("pub/Health_Statistics/NCHS/Publications/ICD10CM/", file_year, "/")
       file <- paste0("https://ftp.cdc.gov/", path, "icd10cm_codes_", file_year, ".txt")
 
-      icd_dictionary <- fread(file, sep = "\t", header = FALSE) %>%
-        setnames(old = "V1", new = "code_combo") %>%
-        as.data.frame() %>%
-        mutate(
-          code_combo = str_replace_all(code_combo, "\\s{2,4}", "_"),
-          code_combo = str_replace_all(code_combo, "(?<=^[[:alnum:]]{7})\\s{1}", "_")
-        ) %>%
-        separate(code_combo, c("code", "description"), sep = "_") %>%
-        mutate(
-          code = str_squish(code),
-          description = str_squish(description),
+      icd_dictionary <- fread(file, sep = "\t", header = FALSE) |>
+        setnames(old = "V1", new = "code_combo") |>
+        as.data.frame() |>
+        dplyr::mutate(
+          code_combo = stringr::str_replace_all(code_combo, "\\s{2,4}", "_"),
+          code_combo = stringr::str_replace_all(code_combo, "(?<=^[[:alnum:]]{7})\\s{1}", "_")
+        ) |>
+        tidyr::separate(code_combo, c("code", "description"), sep = "_") |>
+        dplyr::mutate(
+          code = stringr::str_squish(code),
+          description = stringr::str_squish(description),
           set = paste("ICD-10", file_year)
         )
     }
@@ -319,9 +319,9 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
                      CMS website is currently unresponsive.")
     }
 
-    file_name <- unzip(temp_file, list = TRUE) %>%
-      filter(Name == "CMS32_DESC_LONG_DX.txt") %>%
-      pull(Name)
+    file_name <- unzip(temp_file, list = TRUE) |>
+      dplyr::filter(Name == "CMS32_DESC_LONG_DX.txt") |>
+      dplyr::pull(Name)
 
     unzip(temp_file, files = file_name, exdir = temp_dir, overwrite = TRUE)
 
@@ -329,17 +329,17 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
 
     file_year <- 2014
 
-    icd_dictionary <- fread(file_path, sep = "\t", header = FALSE) %>%
-      setnames(old = "V1", new = "code_combo") %>%
-      as.data.frame() %>%
-      mutate(
-        code_combo = str_replace_all(code_combo, "\\s{2,4}", "_"),
-        code_combo = str_replace_all(code_combo, "(?<=^[[:alnum:]]{4,7})\\s{1}", "_")
-      ) %>%
-      separate(code_combo, c("code", "description"), sep = "_") %>%
-      mutate(
-        code = str_squish(code),
-        description = str_squish(description),
+    icd_dictionary <- fread(file_path, sep = "\t", header = FALSE) |>
+      setnames(old = "V1", new = "code_combo") |>
+      as.data.frame() |>
+      dplyr::mutate(
+        code_combo = stringr::str_replace_all(code_combo, "\\s{2,4}", "_"),
+        code_combo = stringr::str_replace_all(code_combo, "(?<=^[[:alnum:]]{4,7})\\s{1}", "_")
+      ) |>
+      tidyr::separate(code_combo, c("code", "description"), sep = "_") |>
+      dplyr::mutate(
+        code = stringr::str_squish(code),
+        description = stringr::str_squish(description),
         set = paste("ICD-9", file_year)
       )
 

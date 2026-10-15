@@ -44,10 +44,10 @@ Credentials <- R6::R6Class(
         res <- httr::GET(url)
       } else {
         assertions::assert_string(url)
-        res <- url %>%
-          httr::GET(., httr::authenticate(
-            private$..username$value %>% safer::decrypt_string(., private$..__$value),
-            private$..password$value %>% safer::decrypt_string(., private$..__$value)
+        res <- url |>
+          httr::GET(httr::authenticate(
+            private$..username$value |> safer::decrypt_string(private$..__$value),
+            private$..password$value |> safer::decrypt_string(private$..__$value)
           ))
       }
       res$request$options$userpwd <- ""
@@ -72,10 +72,10 @@ Credentials <- R6::R6Class(
     get_api_graph = function(url, file_ext = ".png") {
       assertions::assert_string(url)
       graph <- tempfile(fileext = file_ext)
-      apir <- url %>%
-        httr::GET(., httr::authenticate(
-          private$..username$value %>% safer::decrypt_string(., private$..__$value),
-          private$..password$value %>% safer::decrypt_string(., private$..__$value)
+      apir <- url |>
+        httr::GET(httr::authenticate(
+          private$..username$value |> safer::decrypt_string(private$..__$value),
+          private$..password$value |> safer::decrypt_string(private$..__$value)
         ), httr::write_disk(graph, overwrite = TRUE))
       apir$request$options$userpwd <- ""
       cli::cli_alert_info(httr::http_status(apir$status_code)$message)

@@ -67,21 +67,21 @@
 #' &stratVal=&multiStratVal=geography&graphOnly=true&numSeries=0&graphOptions=multipleSmall
 #' &seriesPerYear=false&startMonth=January&nonZeroComposite=false"
 #'
-#' url <- url %>% gsub("\n", "", .)
+#' url <- url |> gsub("\n", "", x=_)
 #'
 #' api_data <- get_api_data(url)
 #'
 #' df <- api_data$timeSeriesData
 #'
-#' df_switch <- df %>%
-#'   group_by(hospitaldhhsregion_display) %>%
+#' df_switch <- df |>
+#'   dplyr::group_by(hospitaldhhsregion_display) |>
 #'   alert_switch(t = date, y = dataCount)
 #'
 #' # Visualize alert for HHS Region 4
-#' df_switch_region <- df_switch %>%
-#'   filter(hospitaldhhsregion_display == "Region 4")
+#' df_switch_region <- df_switch |>
+#'   dplyr::filter(hospitaldhhsregion_display == "Region 4")
 #'
-#' df_switch_region %>%
+#' df_switch_region |>
 #'   ggplot() +
 #'   geom_line(aes(x = date, y = dataCount), color = "grey70") +
 #'   geom_line(
@@ -129,46 +129,46 @@ alert_switch <- function(df, t = date, y = count, B = 28,
   }
 
   # Check for grouping variables
-  grouped_df <- is.grouped_df(df)
+  grouped_df <- dplyr::is.grouped_df(df)
 
-  t <- enquo(t)
-  y <- enquo(y)
+  t <- rlang::enquo(t)
+  y <- rlang::enquo(y)
 
-  base_tbl <- df %>%
-    mutate({{ t }} := as.Date(!!t))
+  base_tbl <- df |>
+    dplyr::mutate({{ t }} := as.Date(!!t))
 
-  alert_tbl_reg <- base_tbl %>%
-    alert_regression(t = !!t, y = !!y, B = B, g = g) %>%
-    select(-sigma) %>%
-    mutate(detector = "Adaptive Multiple Regression")
+  alert_tbl_reg <- base_tbl |>
+    alert_regression(t = !!t, y = !!y, B = B, g = g) |>
+    dplyr::select(-sigma) |>
+    dplyr::mutate(detector = "Adaptive Multiple Regression")
 
-  alert_tbl_ewma <- base_tbl %>%
-    alert_ewma(t = !!t, y = !!y, B = B, g = g, w1 = w1, w2 = w2) %>%
-    mutate(detector = "EWMA")
+  alert_tbl_ewma <- base_tbl |>
+    alert_ewma(t = !!t, y = !!y, B = B, g = g, w1 = w1, w2 = w2) |>
+    dplyr::mutate(detector = "EWMA")
 
   join_cols <- setdiff(names(alert_tbl_reg), c("baseline_expected", "test_statistic", "p.value", "adjusted_r_squared", "alert", "detector"))
 
-  replace_dates <- alert_tbl_reg %>%
-    filter(is.na(adjusted_r_squared) | adjusted_r_squared < 0.60) %>%
-    select(-c(baseline_expected, test_statistic, p.value, adjusted_r_squared, alert, detector)) %>%
-    inner_join(alert_tbl_ewma, by = join_cols)
+  replace_dates <- alert_tbl_reg |>
+    dplyr::filter(is.na(adjusted_r_squared) | adjusted_r_squared < 0.60) |>
+    dplyr::select(-c(baseline_expected, test_statistic, p.value, adjusted_r_squared, alert, detector)) |>
+    dplyr::inner_join(alert_tbl_ewma, by = join_cols)
 
   if (grouped_df) {
-    groups <- group_vars(base_tbl)
+    groups <- dplyr::group_vars(base_tbl)
 
-    combined_out <- alert_tbl_reg %>%
-      filter(adjusted_r_squared >= 0.60) %>%
-      select(-adjusted_r_squared) %>%
-      bind_rows(replace_dates) %>%
-      arrange(!!!syms(groups), !!enquo(t)) %>%
-      mutate(detector = ifelse(is.na(test_statistic), NA, detector))
+    combined_out <- alert_tbl_reg |>
+      dplyr::filter(adjusted_r_squared >= 0.60) |>
+      dplyr::select(-adjusted_r_squared) |>
+      dplyr::bind_rows(replace_dates) |>
+      dplyr::arrange(!!!syms(groups), !!rlang::enquo(t)) |>
+      dplyr::mutate(detector = ifelse(is.na(test_statistic), NA, detector))
   } else {
-    combined_out <- alert_tbl_reg %>%
-      filter(adjusted_r_squared >= 0.60) %>%
-      select(-adjusted_r_squared) %>%
-      bind_rows(replace_dates) %>%
-      arrange(!!enquo(t)) %>%
-      mutate(detector = ifelse(is.na(test_statistic), NA, detector))
+    combined_out <- alert_tbl_reg |>
+      dplyr::filter(adjusted_r_squared >= 0.60) |>
+      dplyr::select(-adjusted_r_squared) |>
+      dplyr::bind_rows(replace_dates) |>
+      dplyr::arrange(!!rlang::enquo(t)) |>
+      dplyr::mutate(detector = ifelse(is.na(test_statistic), NA, detector))
   }
 
   return(combined_out)

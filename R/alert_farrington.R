@@ -12,8 +12,8 @@
 #' @keywords internal
 #'
 farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
-  t <- enquo(t)
-  y <- enquo(y)
+  t <- rlang::enquo(t)
+  y <- rlang::enquo(y)
 
   N <- nrow(df)
 
@@ -28,11 +28,11 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
   alert_score <- rep(NA, N)
   alert <- rep(NA, N)
 
-  dates <- df %>%
-    pull(!!t)
+  dates <- df |>
+    dplyr::pull(!!t)
 
-  y_obs <- df %>%
-    pull(!!y)
+  y_obs <- df |>
+    dplyr::pull(!!y)
 
   for (i in min_obs:N) {
     current_date <- dates[i]
@@ -44,12 +44,12 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
 
     ref_dates_shifted <- ref_dates - wday_gaps
 
-    floor_ceiling_dates <- if_else(ref_dates_shifted > ref_dates,
+    floor_ceiling_dates <- dplyr::if_else(ref_dates_shifted > ref_dates,
       ref_dates_shifted - 7,
       ref_dates_shifted + 7
     )
 
-    center_dates <- sort(if_else(abs(ref_dates - floor_ceiling_dates) <
+    center_dates <- sort(dplyr::if_else(abs(ref_dates - floor_ceiling_dates) <
       abs(ref_dates - ref_dates_shifted),
     floor_ceiling_dates, ref_dates_shifted
     ))
@@ -99,9 +99,9 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
     ambscombe_resid <- ((3 / 2) * (y_observed^(2 / 3) * (y_fit^(-1 / 6)) -
       sqrt(y_fit))) / (sqrt(phi * (1 - diag)))
 
-    scaled <- if_else(ambscombe_resid > 1, 1 / (ambscombe_resid^2), 1)
+    scaled <- dplyr::if_else(ambscombe_resid > 1, 1 / (ambscombe_resid^2), 1)
     gamma <- length(ambscombe_resid) / sum(scaled)
-    omega <- if_else(ambscombe_resid > 1, gamma / (ambscombe_resid^2), gamma)
+    omega <- dplyr::if_else(ambscombe_resid > 1, gamma / (ambscombe_resid^2), gamma)
 
     mod_weighted <- suppressWarnings(
       glm(as.formula(mod_formula),
@@ -165,9 +165,9 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
         ambscombe_resid <- ((3 / 2) * (y_observed^(2 / 3) * (y_fit^(-1 / 6)) -
           sqrt(y_fit))) / (sqrt(phi * (1 - diag)))
 
-        scaled <- if_else(ambscombe_resid > 1, 1 / (ambscombe_resid^2), 1)
+        scaled <- dplyr::if_else(ambscombe_resid > 1, 1 / (ambscombe_resid^2), 1)
         gamma <- length(ambscombe_resid) / sum(scaled)
-        omega <- if_else(ambscombe_resid > 1, gamma / (ambscombe_resid^2), gamma)
+        omega <- dplyr::if_else(ambscombe_resid > 1, gamma / (ambscombe_resid^2), gamma)
 
         mod_weighted <- suppressWarnings(
           glm(as.formula(mod_formula),
@@ -211,16 +211,16 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
     upper[i] <- max(0, (predicted[i]^(2 / 3) + qnorm(0.95) *
       se_pred)^(3 / 2), na.rm = TRUE)
 
-    alert_score[i] <- if_else(
+    alert_score[i] <- dplyr::if_else(
       !is.na(upper[i]),
       (y_obs[i] - predicted[i]) / (upper[i] - predicted[i]), NA_real_
     )
 
     recent_counts <- sum(y_obs[(i - 4):i])
-    alert[i] <- if_else(alert_score[i] > 1 & recent_counts > 5, "red", "blue")
+    alert[i] <- dplyr::if_else(alert_score[i] > 1 & recent_counts > 5, "red", "blue")
   }
 
-  tibble(
+  tibble::tibble(
     predicted = predicted,
     time_coefficient = time_coefficient,
     include_time_term = include_time_term,
@@ -296,8 +296,8 @@ seasonal_groups <- function(B = 4, g = 27, w = 3, p = 10,
 #'
 farrington_modified <- function(df, t = date, y = count,
                                 B = 4, g = 27, w = 3, p = 10) {
-  t <- enquo(t)
-  y <- enquo(y)
+  t <- rlang::enquo(t)
+  y <- rlang::enquo(y)
 
   N <- nrow(df)
 
@@ -312,11 +312,11 @@ farrington_modified <- function(df, t = date, y = count,
   alert_score <- rep(NA, N)
   alert <- rep(NA, N)
 
-  dates <- df %>%
-    pull(!!t)
+  dates <- df |>
+    dplyr::pull(!!t)
 
-  y_obs <- df %>%
-    pull(!!y)
+  y_obs <- df |>
+    dplyr::pull(!!y)
 
   for (i in min_obs:N) {
     current_date <- dates[i]
@@ -327,12 +327,12 @@ farrington_modified <- function(df, t = date, y = count,
       as.numeric(format(current_date, "%w"))
 
     ref_dates_shifted <- ref_dates - wday_gaps
-    floor_ceiling_dates <- if_else(ref_dates_shifted > ref_dates,
+    floor_ceiling_dates <- dplyr::if_else(ref_dates_shifted > ref_dates,
       ref_dates_shifted - 7, ref_dates_shifted + 7
     )
 
     center_dates <- sort(
-      if_else(
+      dplyr::if_else(
         abs(ref_dates - floor_ceiling_dates) < abs(ref_dates - ref_dates_shifted),
         floor_ceiling_dates, ref_dates_shifted
       )
@@ -391,9 +391,9 @@ farrington_modified <- function(df, t = date, y = count,
     ambscombe_resid <- ((3 / 2) * (y_observed^(2 / 3) * (y_fit^(-1 / 6)) -
       sqrt(y_fit))) / (sqrt(phi * (1 - diag)))
 
-    scaled <- if_else(ambscombe_resid > 2.58, 1 / (ambscombe_resid^2), 1)
+    scaled <- dplyr::if_else(ambscombe_resid > 2.58, 1 / (ambscombe_resid^2), 1)
     gamma <- length(ambscombe_resid) / sum(scaled)
-    omega <- if_else(ambscombe_resid > 2.58, gamma / (ambscombe_resid^2), gamma)
+    omega <- dplyr::if_else(ambscombe_resid > 2.58, gamma / (ambscombe_resid^2), gamma)
 
     mod_weighted <- suppressWarnings(
       glm(as.formula(mod_formula),
@@ -460,9 +460,9 @@ farrington_modified <- function(df, t = date, y = count,
           (sqrt(phi * (1 - diag))
           )
 
-        scaled <- if_else(ambscombe_resid > 2.58, 1 / (ambscombe_resid^2), 1)
+        scaled <- dplyr::if_else(ambscombe_resid > 2.58, 1 / (ambscombe_resid^2), 1)
         gamma <- length(ambscombe_resid) / sum(scaled)
-        omega <- if_else(ambscombe_resid > 2.58,
+        omega <- dplyr::if_else(ambscombe_resid > 2.58,
           gamma / (ambscombe_resid^2), gamma
         )
 
@@ -527,18 +527,18 @@ farrington_modified <- function(df, t = date, y = count,
       qpois(0.95, mu_q)
     }
 
-    alert_score[i] <- if_else(
+    alert_score[i] <- dplyr::if_else(
       !is.na(upper[i]),
       (y_obs[i] - predicted[i]) / (upper[i] - predicted[i]), NA_real_
     )
 
     recent_counts <- sum(y_obs[(i - 4):i])
-    alert[i] <- if_else(alert_score[i] > 1 & recent_counts > 5, "red", "blue")
-    upper[i] <- if_else(recent_counts > 5, upper[i], NA_real_)
+    alert[i] <- dplyr::if_else(alert_score[i] > 1 & recent_counts > 5, "red", "blue")
+    upper[i] <- dplyr::if_else(recent_counts > 5, upper[i], NA_real_)
     predicted[i] <- exp(predicted[i])
   }
 
-  tibble(
+  tibble::tibble(
     predicted = predicted,
     time_coefficient = time_coefficient,
     include_time_term = include_time_term,
@@ -649,7 +649,7 @@ farrington_modified <- function(df, t = date, y = count,
 #' &userId=2362&aqtTarget=TimeSeries"
 #'
 #'
-#' url <- url %>% gsub("\n", "", .)
+#' url <- url |> gsub("\n", "", x=_)
 #'
 #' api_data <- get_api_data(url)
 #'
@@ -667,7 +667,7 @@ farrington_modified <- function(df, t = date, y = count,
 #'
 #'
 #' ### Visualize alert
-#' df_farr_modified %>%
+#' df_farr_modified |>
 #'   ggplot() +
 #'   geom_line(aes(x = date, y = count), linewidth = 0.4, color = "grey70") +
 #'   geom_line(
@@ -729,11 +729,11 @@ alert_farrington <- function(df, t = date, y = count, B = 4, g = 27,
     cli::cli_abort("Not enough historical data to form baseline")
   }
 
-  date_check <- df %>%
-    pull(!!enquo(t))
+  date_check <- df |>
+    dplyr::pull(!!rlang::enquo(t))
 
   # Check for data that should be grouped
-  if (!is_grouped_df(df) & length(unique(date_check)) != length(date_check)) {
+  if (!dplyr::is_grouped_df(df) & length(unique(date_check)) != length(date_check)) {
     cli::cli_abort("Duplicate dates detected. Please group your dataframe!")
   }
 
@@ -752,67 +752,67 @@ alert_farrington <- function(df, t = date, y = count, B = 4, g = 27,
   }
 
   # Check for grouping variables
-  grouped_df <- is.grouped_df(df)
+  grouped_df <- dplyr::is.grouped_df(df)
 
-  t <- enquo(t)
-  y <- enquo(y)
+  t <- rlang::enquo(t)
+  y <- rlang::enquo(y)
 
   if (grouped_df) {
-    groups <- group_vars(df)
+    groups <- dplyr::group_vars(df)
 
     if (method == "modified") {
-      alert_tbl <- df %>%
-        mutate({{ t }} := as.Date(!!t)) %>%
-        nest(data_split = -all_of(groups)) %>%
-        mutate(
-          anomalies = map(
+      alert_tbl <- df |>
+        dplyr::mutate({{ t }} := as.Date(!!t)) |>
+        tidyr::nest(data_split = -all_of(groups)) |>
+        dplyr::mutate(
+          anomalies = purrr::map(
             .x = data_split, .f = farrington_modified,
             t = !!t, y = !!y, B = B, g = g, w = w, p = p
           )
-        ) %>%
-        unnest(c(data_split, anomalies)) %>%
-        mutate(alert = ifelse(is.na(alert), "grey", alert))
+        ) |>
+        tidyr::unnest(c(data_split, anomalies)) |>
+        dplyr::mutate(alert = ifelse(is.na(alert), "grey", alert))
     } else if (method == "original") {
-      alert_tbl <- df %>%
-        mutate({{ t }} := as.Date(!!t)) %>%
-        nest(data_split = -all_of(groups)) %>%
-        mutate(
-          anomalies = map(
+      alert_tbl <- df |>
+        dplyr::mutate({{ t }} := as.Date(!!t)) |>
+        tidyr::nest(data_split = -all_of(groups)) |>
+        dplyr::mutate(
+          anomalies = purrr::map(
             .x = data_split, .f = farrington_original,
             t = !!t, y = !!y, B = B, w = w
           )
-        ) %>%
-        unnest(c(data_split, anomalies)) %>%
-        mutate(alert = ifelse(is.na(alert), "grey", alert))
+        ) |>
+        tidyr::unnest(c(data_split, anomalies)) |>
+        dplyr::mutate(alert = ifelse(is.na(alert), "grey", alert))
     } else {
       cli::cli_abort("Argument {.code method} must be {.code original}
                      or {.code modified}.")
     }
   } else {
     if (method == "modified") {
-      alert_tbl <- df %>%
-        mutate({{ t }} := as.Date(!!t)) %>%
-        nest(data_split = everything()) %>%
-        mutate(
-          anomalies = map(
+      alert_tbl <- df |>
+        dplyr::mutate({{ t }} := as.Date(!!t)) |>
+        tidyr::nest(data_split = everything()) |>
+        dplyr::mutate(
+          anomalies = purrr::map(
             .x = data_split, .f = farrington_modified,
             t = !!t, y = !!y, B = B, g = g, w = w, p = p
           )
-        ) %>%
-        unnest(c(data_split, anomalies)) %>%
-        mutate(alert = ifelse(is.na(alert), "grey", alert))
+        ) |>
+        tidyr::unnest(c(data_split, anomalies)) |>
+        dplyr::mutate(alert = ifelse(is.na(alert), "grey", alert))
     } else if (method == "original") {
-      alert_tbl <- df %>%
-        mutate({{ t }} := as.Date(!!t)) %>%
-        nest(data_split = everything()) %>%
-        mutate(
-          anomalies = map(
+      alert_tbl <- df |>
+        dplyr::mutate({{ t }} := as.Date(!!t)) |>
+        tidyr::nest(data_split = everything()) |>
+        dplyr::mutate(
+          anomalies = purrr::map(
             .x = data_split, .f = farrington_original,
             t = !!t, y = !!y, B = B, w = w
           )
-        ) %>%
-        unnest(c(data_split, anomalies)) %>%
-        mutate(alert = ifelse(is.na(alert), "grey", alert))
+        ) |>
+        tidyr::unnest(c(data_split, anomalies)) |>
+        dplyr::mutate(alert = ifelse(is.na(alert), "grey", alert))
     } else {
       cli::cli_abort("Argument {.code method} must be {.code original}
                      or {.code modified}.")

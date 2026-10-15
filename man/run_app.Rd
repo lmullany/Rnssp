@@ -16,5 +16,7 @@ default browser? (default is TRUE)}
 Run embedded shiny applications
 }
 \examples{
+\dontrun{
 run_app("rule_eval")
+}
 }

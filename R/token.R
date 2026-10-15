@@ -41,12 +41,11 @@ Token <- R6::R6Class(
         message("Please, set your token!")
       } else {
         assertions::assert_string(url)
-        res <- url %>%
-          httr::GET(., httr::add_headers(
+        res <- url |>
+          httr::GET(httr::add_headers(
             Authorization = paste(
               private$..auth_type,
-              private$..token$value %>%
-                safer::decrypt_string(., private$..__$value)
+              private$..token$value |> safer::decrypt_string(private$..__$value)
             )
           ))
         res$request$options$auth_token <- ""
@@ -72,12 +71,11 @@ Token <- R6::R6Class(
     get_api_graph = function(url, file_ext = ".png") {
       assertions::assert_string(url)
       graph <- tempfile(fileext = file_ext)
-      apir <- url %>%
-        httr::GET(., httr::add_headers(
+      apir <- url |>
+        httr::GET(httr::add_headers(
           Authorization = paste(
             private$..auth_type,
-            private$..token$value %>%
-              safer::decrypt_string(., private$..__$value)
+            private$..token$value |> safer::decrypt_string(private$..__$value)
           )
         ), httr::write_disk(graph, overwrite = TRUE))
       apir$request$options$auth_token <- ""

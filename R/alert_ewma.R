@@ -22,8 +22,8 @@
 #'
 
 ewma_loop <- function(df, t, y, B, g, w1, w2) {
-  t <- enquo(t)
-  y <- enquo(y)
+  t <- rlang::enquo(t)
+  y <- rlang::enquo(y)
 
   N <- nrow(df)
 
@@ -35,8 +35,8 @@ ewma_loop <- function(df, t, y, B, g, w1, w2) {
   length_baseline <- min_baseline:max_baseline
 
   # Vector of observations
-  y_initial <- df %>%
-    pull(!!y)
+  y_initial <- df |>
+    dplyr::pull(!!y)
 
   # Scaling for percentage time series with values < 1
   if (max(y_initial) < 1) {
@@ -75,7 +75,7 @@ ewma_loop <- function(df, t, y, B, g, w1, w2) {
   # EWMA loop
   for (i in (min_baseline + g + 1):N) {
     # Pad baseline until full baseline is obtained
-    if (last(ndx_baseline) < max_baseline) {
+    if (dplyr::last(ndx_baseline) < max_baseline) {
       ndx_baseline <- c(0, ndx_baseline)
     }
 
@@ -230,21 +230,21 @@ ewma_loop <- function(df, t, y, B, g, w1, w2) {
 #' &stratVal=&multiStratVal=geography&graphOnly=true&numSeries=0&graphOptions=multipleSmall
 #' &seriesPerYear=false&startMonth=January&nonZeroComposite=false"
 #'
-#' url <- url %>% gsub("\n", "", .)
+#' url <- url |> gsub("\n", "", x=_)
 #'
 #' api_data <- get_api_data(url)
 #'
 #' df <- api_data$timeSeriesData
 #'
-#' df_ewma <- df %>%
-#'   group_by(hospitaldhhsregion_display) %>%
+#' df_ewma <- df |>
+#'   dplyr::group_by(hospitaldhhsregion_display) |>
 #'   alert_ewma(t = date, y = dataCount)
 #'
 #' # Visualize alert for HHS Region 4
-#' df_ewma_region <- df_ewma %>%
-#'   filter(hospitaldhhsregion_display == "Region 4")
+#' df_ewma_region <- df_ewma |>
+#'   dplyr::filter(hospitaldhhsregion_display == "Region 4")
 #'
-#' df_ewma_region %>%
+#' df_ewma_region |>
 #'   ggplot() +
 #'   geom_line(aes(x = date, y = dataCount), color = "grey70") +
 #'   geom_line(
@@ -290,28 +290,28 @@ alert_ewma <- function(df, t = date, y = count,
   }
 
   # Check for grouping variables
-  grouped_df <- is.grouped_df(df)
+  grouped_df <- dplyr::is.grouped_df(df)
 
-  t <- enquo(t)
-  y <- enquo(y)
+  t <- rlang::enquo(t)
+  y <- rlang::enquo(y)
 
-  base_tbl <- df %>%
-    mutate({{ t }} := as.Date(!!t))
+  base_tbl <- df |>
+    dplyr::mutate({{ t }} := as.Date(!!t))
 
   if (grouped_df) {
-    groups <- group_vars(base_tbl)
+    groups <- dplyr::group_vars(base_tbl)
 
-    alert_tbl <- base_tbl %>%
-      nest(data_split = -all_of(groups)) %>%
-      mutate(
-        anomalies = map(
+    alert_tbl <- base_tbl |>
+      tidyr::nest(data_split = -all_of(groups)) |>
+      dplyr::mutate(
+        anomalies = purrr::map(
           .x = data_split, .f = ewma_loop,
           t = !!t, y = !!y, B = B, g = g, w1 = w1, w2 = w2
         )
-      ) %>%
-      unnest(c(data_split, anomalies)) %>%
-      mutate(
-        alert = case_when(
+      ) |>
+      tidyr::unnest(c(data_split, anomalies)) |>
+      dplyr::mutate(
+        alert = dplyr::case_when(
           p.value < 0.01 ~ "red",
           p.value >= 0.01 & p.value < 0.05 ~ "yellow",
           p.value >= 0.05 ~ "blue",
@@ -321,8 +321,8 @@ alert_ewma <- function(df, t = date, y = count,
 
     return(alert_tbl)
   } else {
-    unique_dates <- base_tbl %>%
-      pull(!!t) %>%
+    unique_dates <- base_tbl |>
+      dplyr::pull(!!t) |>
       unique()
 
     if (length(unique_dates) != nrow(base_tbl)) {
@@ -331,17 +331,17 @@ alert_ewma <- function(df, t = date, y = count,
                      Should your dataframe be grouped?")
     }
 
-    alert_tbl <- base_tbl %>%
-      nest(data_split = everything()) %>%
-      mutate(
-        anomalies = map(
+    alert_tbl <- base_tbl |>
+      tidyr::nest(data_split = everything()) |>
+      dplyr::mutate(
+        anomalies = purrr::map(
           .x = data_split, .f = ewma_loop,
           t = !!t, y = !!y, B = B, g = g, w1 = w1, w2 = w2
         )
-      ) %>%
-      unnest(c(data_split, anomalies)) %>%
-      mutate(
-        alert = case_when(
+      ) |>
+      tidyr::unnest(c(data_split, anomalies)) |>
+      dplyr::mutate(
+        alert = dplyr::case_when(
           p.value < 0.01 ~ "red",
           p.value >= 0.01 & p.value < 0.05 ~ "yellow",
           p.value >= 0.05 ~ "blue",

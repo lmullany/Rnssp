@@ -115,7 +115,7 @@ Feb2022&ccddCategory=cdc\%20respiratory\%20syncytial\%20virus\%20v1&percentParam
 &userId=2362&aqtTarget=TimeSeries"
 
 
-url <- url \%>\% gsub("\n", "", .)
+url <- url |> gsub("\n", "", x=_)
 
 api_data <- get_api_data(url)
 
@@ -133,7 +133,7 @@ df_farr_modified <- alert_farrington(df, t = date, y = count, method = "modified
 
 
 ### Visualize alert
-df_farr_modified \%>\%
+df_farr_modified |>
   ggplot() +
   geom_line(aes(x = date, y = count), linewidth = 0.4, color = "grey70") +
   geom_line(

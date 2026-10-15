@@ -16,8 +16,8 @@
 #' @keywords internal
 #'
 adaptive_regression <- function(df, t, y, B, g) {
-  t <- enquo(t)
-  y <- enquo(y)
+  t <- rlang::enquo(t)
+  y <- rlang::enquo(y)
 
   N <- nrow(df)
 
@@ -41,12 +41,12 @@ adaptive_regression <- function(df, t, y, B, g) {
   r_sqrd_adj <- rep(NA, N)
 
   # Vector of dates
-  dates <- df %>%
-    pull(!!t)
+  dates <- df |>
+    dplyr::pull(!!t)
 
   # Vector of observations
-  y_obs <- df %>%
-    pull(!!y)
+  y_obs <- df |>
+    dplyr::pull(!!y)
 
   # Initialize baseline indices
   ndx_baseline <- 1:(min_baseline - 1)
@@ -54,7 +54,7 @@ adaptive_regression <- function(df, t, y, B, g) {
   # Adaptive multiple regression loop
   for (i in (min_baseline + g + 1):N) {
     # Pad baseline until full baseline is obtained
-    if (last(ndx_baseline) < max_baseline) {
+    if (dplyr::last(ndx_baseline) < max_baseline) {
       ndx_baseline <- c(0, ndx_baseline)
     }
 
@@ -62,9 +62,9 @@ adaptive_regression <- function(df, t, y, B, g) {
     ndx_baseline <- ndx_baseline + 1
 
     # Indices for baseline and test date
-    if (last(ndx_baseline) < max_baseline) {
-      ndx_time <- 1:last(ndx_baseline)
-      ndx_test <- last(ndx_baseline) + g + 1
+    if (dplyr::last(ndx_baseline) < max_baseline) {
+      ndx_time <- 1:dplyr::last(ndx_baseline)
+      ndx_test <- dplyr::last(ndx_baseline) + g + 1
     } else {
       ndx_time <- 1:B
       ndx_test <- (B + g + 1)
@@ -79,8 +79,8 @@ adaptive_regression <- function(df, t, y, B, g) {
     B_length <- length(ndx_baseline)
 
     # Baseline observed values
-    baseline_obs <- baseline_data %>%
-      pull(!!y)
+    baseline_obs <- baseline_data |>
+      dplyr::pull(!!y)
 
     # Form regression matrix
     X <- as.matrix(
@@ -104,7 +104,7 @@ adaptive_regression <- function(df, t, y, B, g) {
     rss <- sum(res^2)
     r2 <- (mss / (rss + mss))
     r2_adj <- 1 - (1 - r2) * ((nrow(X) - 1) / lm_fit$df.residual)
-    r_sqrd_adj[i] <- if_else(is.nan(r2_adj), 0, r2_adj)
+    r_sqrd_adj[i] <- dplyr::if_else(is.nan(r2_adj), 0, r2_adj)
 
     # Calculate bounded standard error of regression with derived formula for efficiency
     sigma[i] <- max(
@@ -215,21 +215,21 @@ adaptive_regression <- function(df, t, y, B, g) {
 #' &stratVal=&multiStratVal=geography&graphOnly=true&numSeries=0&graphOptions=multipleSmall
 #' &seriesPerYear=false&startMonth=January&nonZeroComposite=false"
 #'
-#' url <- url %>% gsub("\n", "", .)
+#' url <- url |> gsub("\n", "", x=_)
 #'
 #' api_data <- get_api_data(url)
 #'
 #' df <- api_data$timeSeriesData
 #'
-#' df_regression <- df %>%
-#'   group_by(hospitaldhhsregion_display) %>%
+#' df_regression <- df |>
+#'   dplyr::group_by(hospitaldhhsregion_display) |>
 #'   alert_regression(t = date, y = dataCount)
 #'
 #' # Visualize alert for HHS Region 4
-#' df_regression_region <- df_regression %>%
-#'   filter(hospitaldhhsregion_display == "Region 4")
+#' df_regression_region <- df_regression |>
+#'   dplyr::filter(hospitaldhhsregion_display == "Region 4")
 #'
-#' df_regression_region %>%
+#' df_regression_region |>
 #'   ggplot() +
 #'   geom_line(aes(x = date, y = dataCount), color = "grey70") +
 #'   geom_line(
@@ -279,102 +279,102 @@ alert_regression <- function(df, t = date, y = count, B = 28, g = 2) {
   }
 
   # Check for grouping variables
-  grouped_df <- is.grouped_df(df)
+  grouped_df <- dplyr::is.grouped_df(df)
 
-  t <- enquo(t)
-  y <- enquo(y)
+  t <- rlang::enquo(t)
+  y <- rlang::enquo(y)
 
-  base_tbl <- df %>%
-    mutate(
+  base_tbl <- df |>
+    dplyr::mutate(
       {{ t }} := as.Date(!!t),
       dow = weekdays(!!t, abbreviate = TRUE),
       dummy = 1
-    ) %>%
-    pivot_wider(names_from = dow, values_from = dummy, values_fill = 0)
+    ) |>
+    tidyr::pivot_wider(names_from = dow, values_from = dummy, values_fill = 0)
 
   if (grouped_df) {
-    groups <- group_vars(base_tbl)
+    groups <- dplyr::group_vars(base_tbl)
 
-    base_tbl %>%
-      nest(data_split = -all_of(groups)) %>%
-      mutate(anomalies = map(
+    base_tbl |>
+      tidyr::nest(data_split = -all_of(groups)) |>
+      dplyr::mutate(anomalies = purrr::map(
         .x = data_split,
         .f = adaptive_regression, t = !!t, y = !!y, B = B, g = g
-      )) %>%
-      unnest(c(data_split, anomalies)) %>%
-      mutate(
-        alert = case_when(
+      )) |>
+      tidyr::unnest(c(data_split, anomalies)) |>
+      dplyr::mutate(
+        alert = dplyr::case_when(
           p.value < 0.01 ~ "red",
           p.value >= 0.01 & p.value < 0.05 ~ "yellow",
           p.value >= 0.05 ~ "blue",
           TRUE ~ "grey"
         )
-      ) %>%
-      select(-c(Mon, Tue, Wed, Thu, Fri, Sat, Sun))
+      ) |>
+      dplyr::select(-c(Mon, Tue, Wed, Thu, Fri, Sat, Sun))
 
-    reg_initial <- base_tbl %>%
-      nest(data_split = -all_of(groups)) %>%
-      mutate(anomalies = map(
+    reg_initial <- base_tbl |>
+      tidyr::nest(data_split = -all_of(groups)) |>
+      dplyr::mutate(anomalies = purrr::map(
         .x = data_split,
         .f = adaptive_regression, t = !!t, y = !!y, B = B, g = g
-      )) %>%
-      unnest(c(data_split, anomalies)) %>%
-      mutate(
-        alert = case_when(
+      )) |>
+      tidyr::unnest(c(data_split, anomalies)) |>
+      dplyr::mutate(
+        alert = dplyr::case_when(
           p.value < 0.01 ~ "red",
           p.value >= 0.01 & p.value < 0.05 ~ "yellow",
           p.value >= 0.05 ~ "blue",
           TRUE ~ "grey"
         )
-      ) %>%
-      select(-c(Mon, Tue, Wed, Thu, Fri, Sat, Sun))
+      ) |>
+      dplyr::select(-c(Mon, Tue, Wed, Thu, Fri, Sat, Sun))
 
-    ds_check1 <- reg_initial %>%
-      group_by(across(all_of(groups))) %>%
-      mutate(
+    ds_check1 <- reg_initial |>
+      dplyr::group_by(across(all_of(groups))) |>
+      dplyr::mutate(
         dow = weekdays(!!t, abbreviate = TRUE),
         ma7 = data.table::frollmean(!!y, n = 7, align = "right", fill = NA),
-        lt_ma7 = if_else(!!y < ma7, TRUE, FALSE),
-        remove_alert = if_else(alert != "blue" & lt_ma7, TRUE, FALSE)
+        lt_ma7 = dplyr::if_else(!!y < ma7, TRUE, FALSE),
+        remove_alert = dplyr::if_else(alert != "blue" & lt_ma7, TRUE, FALSE)
       )
 
-    ds_check2 <- ds_check1 %>%
-      filter(dow %in% c("Sat", "Sun")) %>%
-      arrange(get(groups), dow, !!t) %>%
-      group_by(across(all_of(groups)), dow) %>%
-      mutate(
+    ds_check2 <- ds_check1 |>
+      dplyr::filter(dow %in% c("Sat", "Sun")) |>
+      dplyr::arrange(get(groups), dow, !!t) |>
+      dplyr::group_by(across(all_of(groups)), dow) |>
+      dplyr::mutate(
         wday_ma7 = data.table::frollmean(!!y, n = 7, align = "right", fill = NA),
-        lt_wday_ma7 = if_else(!!y < wday_ma7, TRUE, FALSE),
-        remove_wday_alert = case_when(
+        lt_wday_ma7 = dplyr::if_else(!!y < wday_ma7, TRUE, FALSE),
+        remove_wday_alert = dplyr::case_when(
           alert != "blue" & remove_alert & lt_wday_ma7 ~ TRUE,
           alert != "blue" & remove_alert & !lt_wday_ma7 ~ FALSE,
           TRUE ~ FALSE
         )
-      ) %>%
-      ungroup() %>%
-      select(
+      ) |>
+      dplyr::ungroup() |>
+      dplyr::select(
         all_of(groups),
         !!t,
         wday_ma7,
         remove_wday_alert
       )
 
-    ds_check1 %>%
-      left_join(ds_check2, by = c(groups, quo_name(t))) %>%
-      mutate(
-        alert_status_final = case_when(
+    ds_check1 |>
+      dplyr::left_join(ds_check2, by = c(groups, quo_name(t))) |>
+      dplyr::mutate(
+        alert_status_final = dplyr::case_when(
           remove_alert & (!dow %in% c("Sat", "Sun")) ~ "grey",
           remove_alert & remove_wday_alert ~ "grey",
           remove_alert & !remove_wday_alert ~ alert,
           TRUE ~ alert
         )
-      ) %>%
-      select(-(dow:remove_wday_alert)) %>%
-      select(-alert) %>%
-      rename(alert = alert_status_final)
+      ) |>
+      dplyr::select(-(dow:remove_wday_alert)) |>
+      dplyr::select(-alert) |>
+      dplyr::rename(alert = alert_status_final)
   } else {
-    unique_dates <- base_tbl %>%
-      pull(!!t) %>%
+    unique_dates <- base_tbl |>
+      dplyr::pull(!!t) |>
       unique()
 
     if (length(unique_dates) != nrow(base_tbl)) {
@@ -382,63 +382,63 @@ alert_regression <- function(df, t = date, y = count, B = 28, g = 2) {
                      not equal the number of rows. Should your dataframe be grouped?")
     }
 
-    reg_initial <- base_tbl %>%
-      nest(data_split = everything()) %>%
-      mutate(anomalies = map(
+    reg_initial <- base_tbl |>
+      tidyr::nest(data_split = everything()) |>
+      dplyr::mutate(anomalies = purrr::map(
         .x = data_split,
         .f = adaptive_regression, t = !!t, y = !!y, B = B, g = g
-      )) %>%
-      unnest(c(data_split, anomalies)) %>%
-      mutate(
-        alert = case_when(
+      )) |>
+      tidyr::unnest(c(data_split, anomalies)) |>
+      dplyr::mutate(
+        alert = dplyr::case_when(
           p.value < 0.01 ~ "red",
           p.value >= 0.01 & p.value < 0.05 ~ "yellow",
           p.value >= 0.05 ~ "blue",
           TRUE ~ "grey"
         )
-      ) %>%
-      select(-c(Mon, Tue, Wed, Thu, Fri, Sat, Sun))
+      ) |>
+      dplyr::select(-c(Mon, Tue, Wed, Thu, Fri, Sat, Sun))
 
-    ds_check1 <- reg_initial %>%
-      mutate(
+    ds_check1 <- reg_initial |>
+      dplyr::mutate(
         dow = weekdays(!!t, abbreviate = TRUE),
         ma7 = data.table::frollmean(!!y, n = 7, align = "right", fill = NA),
-        lt_ma7 = if_else(!!y < ma7, TRUE, FALSE),
-        remove_alert = if_else(alert != "blue" & lt_ma7, TRUE, FALSE)
+        lt_ma7 = dplyr::if_else(!!y < ma7, TRUE, FALSE),
+        remove_alert = dplyr::if_else(alert != "blue" & lt_ma7, TRUE, FALSE)
       )
 
-    ds_check2 <- ds_check1 %>%
-      filter(dow %in% c("Sat", "Sun")) %>%
-      group_by(dow) %>%
-      arrange(dow, !!t) %>%
-      mutate(
+    ds_check2 <- ds_check1 |>
+      dplyr::filter(dow %in% c("Sat", "Sun")) |>
+      dplyr::group_by(dow) |>
+      dplyr::arrange(dow, !!t) |>
+      dplyr::mutate(
         wday_ma7 = data.table::frollmean(!!y, n = 7, align = "right", fill = NA),
-        lt_wday_ma7 = if_else(!!y < wday_ma7, TRUE, FALSE),
-        remove_wday_alert = case_when(
+        lt_wday_ma7 = dplyr::if_else(!!y < wday_ma7, TRUE, FALSE),
+        remove_wday_alert = dplyr::case_when(
           alert != "blue" & remove_alert & lt_wday_ma7 ~ TRUE,
           alert != "blue" & remove_alert & !lt_wday_ma7 ~ FALSE,
           TRUE ~ FALSE
         )
-      ) %>%
-      ungroup() %>%
-      select(
+      ) |>
+      dplyr::ungroup() |>
+      dplyr::select(
         !!t,
         wday_ma7,
         remove_wday_alert
       )
 
-    ds_check1 %>%
-      left_join(ds_check2, by = quo_name(t)) %>%
-      mutate(
-        alert_status_final = case_when(
+    ds_check1 |>
+      dplyr::left_join(ds_check2, by = quo_name(t)) |>
+      dplyr::mutate(
+        alert_status_final = dplyr::case_when(
           remove_alert & (!dow %in% c("Sat", "Sun")) ~ "blue",
           remove_alert & remove_wday_alert ~ "blue",
           remove_alert & !remove_wday_alert ~ alert,
           TRUE ~ alert
         )
-      ) %>%
-      select(-(dow:remove_wday_alert)) %>%
-      select(-alert) %>%
-      rename(alert = alert_status_final)
+      ) |>
+      dplyr::select(-(dow:remove_wday_alert)) |>
+      dplyr::select(-alert) |>
+      dplyr::rename(alert = alert_status_final)
   }
 }

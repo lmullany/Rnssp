@@ -7,7 +7,9 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' run_app("rule_eval")
+#' }
 run_app <- function(app, launch_browser = TRUE) {
   apps_dir <- system.file("shiny-apps", package = "Rnssp")
   local_apps <- list.files(apps_dir)

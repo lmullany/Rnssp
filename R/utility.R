@@ -188,54 +188,48 @@ remove_rmd_template <- function(template, pkg = "Rnssp", recursive = TRUE,
 #' url <- "https://essence.syndromicsurveillance.org/nssp_essence/api/alerts/hospitalSyndromeAlerts?
 #' end_date=31Jan2021&start_date=29Jan2021"
 #'
-#' url <- url %>% gsub("\n", "", .)
+#' url <- url |> gsub("\n", "", x=_)
 #'
 #' # Change start date to January 15, 2021
-#' url %>% change_dates(start_date = "2021-01-15")
+#' url |> change_dates(start_date = "2021-01-15")
 #'
 #' # Change end date to February 15, 2021
-#' url %>% change_dates(end_date = "2021-02-15")
+#' url |> change_dates(end_date = "2021-02-15")
 #'
 #' # Change start date to January 15, 2021 and end date to February 15, 2021
-#' url %>% change_dates(start_date = "2021-01-15", end_date = "2021-02-15")
+#' url |> change_dates(start_date = "2021-01-15", end_date = "2021-02-15")
 #'
 #' # Change end and start dates to respectively "current" and "current - 7 days"
-#' url %>% change_dates(start_date = Sys.Date() - 7, end_date = Sys.Date())
+#' url |> change_dates(start_date = Sys.Date() - 7, end_date = Sys.Date())
 change_dates <- function(url, start_date = NULL, end_date = NULL) {
   assertions::assert_string(url)
   prefixes <- list(
-    epref = url %>%
-      regmatches(., regexpr("endDate=\\d+[A-Za-z]+\\d+|end_date=\\d+[A-Za-z]+\\d+", .)) %>%
-      str_split("=") %>%
-      unlist() %>%
-      .[1] %>%
-      paste0(., "="),
-    spref = url %>%
-      regmatches(., regexpr("startDate=\\d+[A-Za-z]+\\d+|start_date=\\d+[A-Za-z]+\\d+", .)) %>%
-      str_split("=") %>%
-      unlist() %>%
-      .[1] %>%
-      paste0(., "=")
+    epref = (
+      regmatches(url, regexpr("endDate=\\d+[A-Za-z]+\\d+|end_date=\\d+[A-Za-z]+\\d+", url)) |>
+      stringr::str_split("=") |>
+      unlist()
+    )[1] |> paste0("="),
+    
+    spref = (
+      regmatches(url, regexpr("startDate=\\d+[A-Za-z]+\\d+|start_date=\\d+[A-Za-z]+\\d+", url)) |>
+      stringr::str_split("=") |>
+      unlist()
+    )[1] |> paste0("=")
   )
-  old_end <- url %>%
-    regmatches(., regexpr("endDate=\\d+[A-Za-z]+\\d+|end_date=\\d+[A-Za-z]+\\d+", .)) %>%
-    str_replace(., prefixes[["epref"]], "")
-  old_start <- url %>%
-    regmatches(., regexpr("startDate=\\d+[A-Za-z]+\\d+|start_date=\\d+[A-Za-z]+\\d+", .)) %>%
-    str_replace(., prefixes[["spref"]], "")
+  old_end <- regmatches(url, regexpr("endDate=\\d+[A-Za-z]+\\d+|end_date=\\d+[A-Za-z]+\\d+", url)) |>
+    stringr::str_replace(prefixes[["epref"]], "")
+  
+  old_start <- regmatches(url, regexpr("startDate=\\d+[A-Za-z]+\\d+|start_date=\\d+[A-Za-z]+\\d+", url)) |>
+    stringr::str_replace(prefixes[["spref"]], "")
+  
   new_end <- old_end
   new_start <- old_start
+  
   if (!is.null(end_date)) {
-    new_end <- end_date %>%
-      as.Date() %>%
-      format(., "%e%b%Y") %>%
-      str_trim()
+    new_end <- as.Date(end_date) |>  format("%e%b%Y") |> stringr::str_trim()
   }
   if (!is.null(start_date)) {
-    new_start <- start_date %>%
-      as.Date() %>%
-      format(., "%e%b%Y") %>%
-      str_trim()
+    new_start <- as.Date(start_date) |> format("%e%b%Y") |> stringr::str_trim()
   }
   new_startd <- ifelse(nchar(new_start) > 7,
     as.Date(new_start, "%e%b%Y"),
@@ -248,9 +242,11 @@ change_dates <- function(url, start_date = NULL, end_date = NULL) {
   if (new_startd > new_endd) {
     cli::cli_abort("Start Date {.field {new_start}} is posterior to End Date {.field {new_end}}.")
   }
-  str_replace(url, paste0(prefixes[["epref"]], old_end), paste0(prefixes[["epref"]], new_end)) %>%
-    str_replace(., paste0(prefixes[["spref"]], old_start), paste0(prefixes[["spref"]], new_start)) %>%
-    gsub("[[:space:]]", "", .)
+  stringr::str_replace(
+    url, paste0(prefixes[["epref"]], old_end), paste0(prefixes[["epref"]], new_end)
+  ) |>
+    stringr::str_replace(paste0(prefixes[["spref"]], old_start), paste0(prefixes[["spref"]], new_start)) |>
+    gsub("[[:space:]]", "", x=_)
 }
 
 #' Browse Rnssp vignettes

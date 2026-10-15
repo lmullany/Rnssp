@@ -200,26 +200,26 @@ get_api_graph <- function(url, file_ext = ".png", profile = myProfile) {
 #' &detector=probrepswitch&startDate=22Jun22&timeResolution=daily&hasBeenE=1
 #' &medicalGroupingSystem=essencesyndromes"
 #'
-#' url <- url %>% gsub("\n", "", .)
+#' url <- url |> gsub("\n", "", x=_)
 #'
 #' ## Pull ESSENCE data
 #' api_data <- get_essence_data(url)
 #'
 #' ## Inspect data
-#' glimpse(api_data)
+#' dplyr::glimpse(api_data)
 #'
 #'
 #' # Example 2
 #' url <- "https://essence.syndromicsurveillance.org/nssp_essence/api/alerts/regionSyndromeAlerts?
 #' end_date=31Jan2021&start_date=29Jan2021"
 #'
-#' url <- url %>% gsub("\n", "", .)
+#' url <- url |> gsub("\n", "", x=_)
 #'
 #' ## Pull last 30 days of ESSENCE data
 #' api_data <- get_essence_data(url, start_date = Sys.Date() - 30, end_date = Sys.Date())
 #'
 #' ## Inspect data
-#' glimpse(api_data)
+#' dplyr::glimpse(api_data)
 #'
 #'
 #' # Example 3
@@ -228,7 +228,7 @@ get_api_graph <- function(url, file_ext = ".png", profile = myProfile) {
 #' &medicalGroupingSystem=essencesyndromes&userId=3751&aqtTarget=TimeSeries&ccddCategory=
 #' &geographySystem=hospitalregion&detector=probrepswitch&timeResolution=daily"
 #'
-#' url <- url %>% gsub("\n", "", .)
+#' url <- url |> gsub("\n", "", x=_)
 #'
 #' ## Pull Time series graph
 #' api_tsgraph <- get_essence_data(url)
@@ -240,7 +240,7 @@ get_api_graph <- function(url, file_ext = ".png", profile = myProfile) {
 #'
 get_essence_data <- function(url, start_date = NULL,
                              end_date = NULL, profile = myProfile, ...) {
-  api_type <- str_extract(url, "(?<=api/).+(?=\\?)")
+  api_type <- stringr::str_extract(url, "(?<=api/).+(?=\\?)")
 
   url_new <- try(change_dates(url, start_date, end_date), silent = TRUE)
 
@@ -250,20 +250,20 @@ get_essence_data <- function(url, start_date = NULL,
   }
 
   switch(api_type,
-    "timeSeries" = profile$get_api_data(url_new) %>%
+    "timeSeries" = profile$get_api_data(url_new) |>
       extract2("timeSeriesData"),
-    "timeSeries/graph" = profile$get_api_graph(url_new) %>%
+    "timeSeries/graph" = profile$get_api_graph(url_new) |>
       extract2("graph"),
     "tableBuilder/csv" = profile$get_api_data(url_new, fromCSV = TRUE, ...),
     "tableBuilder" = profile$get_api_data(url_new, ...),
-    "dataDetails" = profile$get_api_data(url_new) %>%
+    "dataDetails" = profile$get_api_data(url_new) |>
       extract2("dataDetails"),
     "dataDetails/csv" = profile$get_api_data(url_new, fromCSV = TRUE, ...),
-    "summaryData" = profile$get_api_data(url_new) %>%
+    "summaryData" = profile$get_api_data(url_new) |>
       extract2("summaryData"),
-    "alerts/regionSyndromeAlerts" = myProfile$get_api_data(url_new) %>%
+    "alerts/regionSyndromeAlerts" = myProfile$get_api_data(url_new) |>
       extract2("regionSyndromeAlerts"),
-    "alerts/hospitalSyndromeAlerts" = profile$get_api_data(url_new) %>%
+    "alerts/hospitalSyndromeAlerts" = profile$get_api_data(url_new) |>
       extract2("hospitalSyndromeAlerts"),
     cli::cli_abort("URL is not of ESSENCE type. Check your URL or use
                    {.fn get_api_data} instead!")

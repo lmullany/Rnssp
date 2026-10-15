@@ -86,30 +86,30 @@ if (load_profile) {
   if (all(endsWith(tolower(prof_file), ".rda"))) {
     myProfile <- get(load(prof_file))
   } else {
-    myProfile <- prof_file %>%
-      readRDS() %>%
+    myProfile <- prof_file |>
+      readRDS() |>
       try(silent = TRUE)
   }
   if (all(class(myProfile) == "try-error")) {
     cli::cli_alert_danger("No or corrupt file loaded!")
-    myProfile <- create_profile() %>%
+    myProfile <- create_profile() |>
       try(silent = TRUE)
     if (all(class(myProfile) == "try-error")) {
       cli::cli_abort("App stopped. No credentials provided!")
     }
   }
 } else {
-  myProfile <- create_profile() %>%
+  myProfile <- create_profile() |>
     try(silent = TRUE)
   if (all(class(myProfile) == "try-error")) {
     cli::cli_abort("App stopped. No credentials provided!")
   }
 }
 
-ccdd_cats <- "https://essence.syndromicsurveillance.org/nssp_essence/api/datasources/va_hosp/fields/ccddCategory" %>%
-  get_api_data(profile = myProfile) %>%
-  pluck("values") %>%
-  pull("value") %>%
+ccdd_cats <- "https://essence.syndromicsurveillance.org/nssp_essence/api/datasources/va_hosp/fields/ccddCategory" |>
+  get_api_data(profile = myProfile) |>
+  pluck("values") |>
+  dplyr::pull("value") |>
   try(silent = TRUE)
 
 if (any(class(ccdd_cats) == "try-error")) {
@@ -117,32 +117,32 @@ if (any(class(ccdd_cats) == "try-error")) {
                  Check your credentials and try again")
 }
 
-detectors <- "https://essence.syndromicsurveillance.org/nssp_essence/api/detectors" %>%
-  get_api_data(profile = myProfile) %>%
-  pluck("detectors") %>%
-  filter(
+detectors <- "https://essence.syndromicsurveillance.org/nssp_essence/api/detectors" |>
+  get_api_data(profile = myProfile) |>
+  pluck("detectors") |>
+  dplyr::filter(
     !id %in% c("c1", "c2", "c3", "probregv2", "shewhartdow"),
     supportsDaily
-  ) %>%
-  select(id, label)
+  ) |>
+  dplyr::select(id, label)
 
 detector_choices <- setNames(detectors$id, detectors$label)
 
 
-county_info <- state_sf %>%
-  sf::st_drop_geometry() %>%
-  select(STATEFP, STUSPS, NAME) %>%
-  lapply(., as.character) %>%
-  data.frame(., stringsAsFactors = FALSE) %>%
-  left_join(
-    county_sf %>%
-      sf::st_drop_geometry() %>%
-      select(STATEFP, NAME) %>%
-      lapply(., as.character) %>%
+county_info <- state_sf |>
+  sf::st_drop_geometry() |>
+  dplyr::select(STATEFP, STUSPS, NAME) |>
+  lapply(., as.character) |>
+  data.frame(., stringsAsFactors = FALSE) |>
+  dplyr::left_join(
+    county_sf |>
+      sf::st_drop_geometry() |>
+      dplyr::select(STATEFP, NAME) |>
+      lapply(., as.character) |>
       data.frame(., stringsAsFactors = FALSE),
     by = "STATEFP"
-  ) %>%
-  rename(STATE = NAME.x, COUNTY = NAME.y)
+  ) |>
+  dplyr::rename(STATE = NAME.x, COUNTY = NAME.y)
 
 url1 <- "https://essence.syndromicsurveillance.org/nssp_essence/api/timeSeries?endDate=25Jun2022&geography="
 url2 <- "&percentParam=noPercent&datasource=va_hosp&startDate=25Jun2021&medicalGroupingSystem=essencesyndromes&userId=3751&aqtTarget=TimeSeries&ccddCategory="
@@ -377,9 +377,9 @@ server <- function(input, output, session) {
     updateSelectizeInput(
       session,
       "State2",
-      choices = county_info %>%
-        pull(STUSPS) %>%
-        unique() %>%
+      choices = county_info |>
+        dplyr::pull(STUSPS) |>
+        unique() |>
         sort(),
       selected = "OR",
       server = TRUE
@@ -390,9 +390,9 @@ server <- function(input, output, session) {
     updateSelectizeInput(
       session,
       "County",
-      choices = county_info %>%
-        filter(STUSPS == input$State2) %>%
-        pull(COUNTY),
+      choices = county_info |>
+        dplyr::filter(STUSPS == input$State2) |>
+        dplyr::pull(COUNTY),
       selected = "Multnomah",
       server = TRUE
     )
@@ -412,22 +412,22 @@ server <- function(input, output, session) {
   )
 
   url <- eventReactive(input$go, {
-    input$County %>%
-      tolower() %>%
-      gsub(" ", "%20", .) %>%
+    input$County |>
+      tolower() |>
+      gsub(" ", "%20", .) |>
       paste0(
         url1, tolower(input$State2), "_", .,
         url2, gsub(" ", "%20", input$CCDD),
         url3, input$Detector, url4
-      ) %>%
+      ) |>
       change_dates(input$StartDate, input$EndDate)
   })
 
   df1 <- reactive({
     api_data <- myProfile$get_api_data(url())
     df <- api_data$timeSeriesData
-    df %>%
-      mutate(
+    df |>
+      dplyr::mutate(
         date = as.Date(date),
         redCounts = ifelse(levels <= input$Pval_R, count, NA),
         yellowCounts = ifelse(levels <= input$Pval_Y & levels > input$Pval_R, count, NA),
@@ -463,7 +463,7 @@ server <- function(input, output, session) {
     input$go
     df1()
 
-    plt <- plot_ly(data = df1()) %>%
+    plt <- plot_ly(data = df1()) |>
       add_trace(
         x = ~date,
         y = ~count,
@@ -477,7 +477,7 @@ server <- function(input, output, session) {
           "<br>Count:</b>", format(count, big.mark = ","),
           "<br>p-value:</b>", format(levels, digits = 2, scientific = TRUE)
         )
-      ) %>%
+      ) |>
       add_markers(
         x = ~date,
         y = ~blueCounts,
@@ -489,7 +489,7 @@ server <- function(input, output, session) {
           "<br>p-value:</b>", format(levels, digits = 2, scientific = TRUE)
         ),
         name = "None"
-      ) %>%
+      ) |>
       layout(
         xaxis = list(
           title = "Date",
@@ -509,7 +509,7 @@ server <- function(input, output, session) {
       )
 
     if ("RedYel" %in% input$markers) {
-      plt <- plt %>%
+      plt <- plt |>
         add_markers(
           x = ~date,
           y = ~yellowCounts,
@@ -521,7 +521,7 @@ server <- function(input, output, session) {
             "<br>p-value:</b>", format(levels, digits = 2, scientific = TRUE)
           ),
           name = "Warning"
-        ) %>%
+        ) |>
         add_markers(
           x = ~date,
           y = ~redCounts,
@@ -537,7 +537,7 @@ server <- function(input, output, session) {
     }
 
     if ("Crit" %in% input$markers) {
-      plt <- plt %>%
+      plt <- plt |>
         add_markers(
           x = ~date,
           y = ~criterion,
@@ -553,7 +553,7 @@ server <- function(input, output, session) {
         )
     }
 
-    plt %>%
+    plt |>
       config(modeBarButtons = list(list("toImage"), list("autoScale2d")))
   })
 

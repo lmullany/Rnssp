@@ -17,30 +17,30 @@
 #' @keywords internal
 #'
 nb_model <- function(df, t, y, baseline_end, include_time) {
-  t <- enquo(t)
-  y <- enquo(y)
+  t <- rlang::enquo(t)
+  y <- rlang::enquo(y)
 
-  df <- df %>%
-    mutate(
+  df <- df |>
+    dplyr::mutate(
       t  = as.Date(!!t),
       y  = as.numeric(!!y)
     )
 
   time_included <- TRUE
 
-  input_data <- df %>%
-    mutate(
-      obs = row_number(),
+  input_data <- df |>
+    dplyr::mutate(
+      obs = dplyr::row_number(),
       cos = cos((2 * pi * obs) / 52.18),
       sin = sin((2 * pi * obs) / 52.18),
       split = ifelse(t <= baseline_end, "Baseline Period", "Prediction Period")
     )
 
-  baseline_data <- input_data %>%
-    filter(split == "Baseline Period")
+  baseline_data <- input_data |>
+    dplyr::filter(split == "Baseline Period")
 
-  predict_data <- input_data %>%
-    filter(split == "Prediction Period")
+  predict_data <- input_data |>
+    dplyr::filter(split == "Prediction Period")
 
   baseline_model <- suppressWarnings(MASS::glm.nb(y ~ obs + cos + sin, data = baseline_data))
 
@@ -48,27 +48,27 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
   df_residual <- baseline_model$df.residual
   theta <- baseline_model$theta
 
-  baseline_fit <- bind_cols(
+  baseline_fit <- dplyr::bind_cols(
     baseline_data,
-    predict(baseline_model, simulate_pi = FALSE, se.fit = TRUE) %>%
-      as.data.frame() %>%
-      dplyr::select(fit_link = fit, se_link = se.fit) %>%
-      mutate(
+    predict(baseline_model, simulate_pi = FALSE, se.fit = TRUE) |>
+      as.data.frame() |>
+      dplyr::select(fit_link = fit, se_link = se.fit) |>
+      dplyr::mutate(
         estimate = inv_link(fit_link),
         upper_ci = inv_link(fit_link + qt(1 - 0.05, df_residual) * se_link),
         threshold = qnbinom(1 - 0.05, mu = upper_ci, size = theta)
       )
   )
 
-  predict_fit <- bind_cols(
+  predict_fit <- dplyr::bind_cols(
     predict_data,
     predict(baseline_model,
       newdata = predict_data, simulate_pi = FALSE,
       se.fit = TRUE, type = "link"
-    ) %>%
-      as.data.frame() %>%
-      dplyr::select(fit_link = fit, se_link = se.fit) %>%
-      mutate(
+    ) |>
+      as.data.frame() |>
+      dplyr::select(fit_link = fit, se_link = se.fit) |>
+      dplyr::mutate(
         estimate = inv_link(fit_link),
         upper_ci = inv_link(fit_link + qt(1 - 0.05, df_residual) * se_link),
         threshold = qnbinom(1 - 0.05, mu = upper_ci, size = theta)
@@ -84,27 +84,27 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
     df_residual <- baseline_model$df.residual
     theta <- baseline_model$theta
 
-    baseline_fit <- bind_cols(
+    baseline_fit <- dplyr::bind_cols(
       baseline_data,
-      predict(baseline_model, simulate_pi = FALSE, se.fit = TRUE) %>%
-        as.data.frame() %>%
-        dplyr::select(fit_link = fit, se_link = se.fit) %>%
-        mutate(
+      predict(baseline_model, simulate_pi = FALSE, se.fit = TRUE) |>
+        as.data.frame() |>
+        dplyr::select(fit_link = fit, se_link = se.fit) |>
+        dplyr::mutate(
           estimate = inv_link(fit_link),
           upper_ci = inv_link(fit_link + qt(1 - 0.05, df_residual) * se_link),
           threshold = qnbinom(1 - 0.05, mu = upper_ci, size = theta)
         )
     )
 
-    predict_fit <- bind_cols(
+    predict_fit <- dplyr::bind_cols(
       predict_data,
       predict(baseline_model,
         newdata = predict_data, simulate_pi = FALSE,
         se.fit = TRUE, type = "link"
-      ) %>%
-        as.data.frame() %>%
-        dplyr::select(fit_link = fit, se_link = se.fit) %>%
-        mutate(
+      ) |>
+        as.data.frame() |>
+        dplyr::select(fit_link = fit, se_link = se.fit) |>
+        dplyr::mutate(
           estimate = inv_link(fit_link),
           upper_ci = inv_link(fit_link + qt(1 - 0.05, df_residual) * se_link),
           threshold = qnbinom(1 - 0.05, mu = upper_ci, size = theta)
@@ -112,15 +112,15 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
     )
   }
 
-  bind_rows(baseline_fit, predict_fit) %>%
-    arrange(!!t) %>%
-    `rownames<-`(NULL) %>%
-    mutate(
+  dplyr::bind_rows(baseline_fit, predict_fit) |>
+    dplyr::arrange(!!t) |>
+    `rownames<-`(NULL) |>
+    dplyr::mutate(
       split = factor(split, levels = c("Baseline Period", "Prediction Period")),
       alarm = ifelse(!!y > threshold, TRUE, FALSE),
       time_term = time_included
-    ) %>%
-    select(-(t:sin), -fit_link, -se_link, -upper_ci)
+    ) |>
+    dplyr::select(-(t:sin), -fit_link, -se_link, -upper_ci)
 }
 
 
@@ -187,7 +187,7 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
 #'
 #'
 #' ## Visualize alert
-#' df_nbinom %>%
+#' df_nbinom |>
 #'   ggplot() +
 #'   theme_classic() +
 #'   geom_line(aes(x = date, y = cases), linewidth = 0.3) +
@@ -233,7 +233,7 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
 #' &userId=2362&aqtTarget=TimeSeries"
 #'
 #'
-#' url <- url %>% gsub("\n", "", .)
+#' url <- url |> gsub("\n", "", x=_)
 #'
 #' api_data <- get_api_data(url)
 #'
@@ -244,7 +244,7 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
 #'
 #'
 #' ### Visualize alert
-#' df_nbinom %>%
+#' df_nbinom |>
 #'   ggplot() +
 #'   geom_line(aes(x = date, y = count), linewidth = 0.3) +
 #'   geom_line(aes(x = date, y = estimate), color = "blue", linewidth = 0.3) +
@@ -284,20 +284,20 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
 #' }
 #'
 alert_nbinom <- function(df, t = date, y = count, include_time = TRUE, baseline_end) {
-  t <- enquo(t)
-  y <- enquo(y)
+  t <- rlang::enquo(t)
+  y <- rlang::enquo(y)
 
-  df <- df %>%
-    mutate(
+  df <- df |>
+    dplyr::mutate(
       {{ t }} := as.Date(!!t),
       {{ y }} := as.numeric(!!y)
     )
 
   # Check baseline length and for sufficient historical data
-  baseline_n_wks <- df %>%
-    filter(!!t <= baseline_end) %>%
-    pull(!!t) %>%
-    unique() %>%
+  baseline_n_wks <- df |>
+    dplyr::filter(!!t <= baseline_end) |>
+    dplyr::pull(!!t) |>
+    unique() |>
     length()
 
   baseline_n_yrs <- baseline_n_wks / 52
@@ -307,11 +307,11 @@ alert_nbinom <- function(df, t = date, y = count, include_time = TRUE, baseline_
                    greater than or equal to 2 years")
   }
 
-  baseline <- df %>%
-    filter(!!t <= baseline_end)
+  baseline <- df |>
+    dplyr::filter(!!t <= baseline_end)
 
-  baseline_dates <- baseline %>%
-    pull(!!t)
+  baseline_dates <- baseline |>
+    dplyr::pull(!!t)
 
   if (length(unique(seq.Date(min(baseline_dates), max(baseline_dates),
     by = "1 week"
@@ -321,11 +321,11 @@ alert_nbinom <- function(df, t = date, y = count, include_time = TRUE, baseline_
   }
 
   # Check that time series observations are non-negative integer counts
-  ts_obs <- df %>%
-    pull(!!y)
+  ts_obs <- df |>
+    dplyr::pull(!!y)
 
-  ts_obs_int <- df %>%
-    pull(!!y) %>%
+  ts_obs_int <- df |>
+    dplyr::pull(!!y) |>
     as.integer()
 
   if (!all(ts_obs == ts_obs_int) | !(all(ts_obs >= 0))) {
@@ -334,24 +334,24 @@ alert_nbinom <- function(df, t = date, y = count, include_time = TRUE, baseline_
   }
 
   # Check for grouping variables
-  grouped_df <- is.grouped_df(df)
+  grouped_df <- dplyr::is.grouped_df(df)
 
   if (grouped_df) {
-    groups <- group_vars(df)
+    groups <- dplyr::group_vars(df)
 
-    df %>%
-      nest(data_split = -all_of(groups)) %>%
-      mutate(
-        detection = map(
+    df |>
+      tidyr::nest(data_split = -all_of(groups)) |>
+      dplyr::mutate(
+        detection = purrr::map(
           .x = data_split, .f = nb_model, t = !!t, y = !!y,
           baseline_end = baseline_end, include_time = include_time
         )
-      ) %>%
-      select(-data_split) %>%
-      unnest(detection)
+      ) |>
+      dplyr::select(-data_split) |>
+      tidyr::unnest(detection)
   } else {
-    unique_dates <- df %>%
-      pull(!!t) %>%
+    unique_dates <- df |>
+      dplyr::pull(!!t) |>
       unique()
 
     if (length(unique_dates) != nrow(df)) {
@@ -360,15 +360,15 @@ alert_nbinom <- function(df, t = date, y = count, include_time = TRUE, baseline_
                      Should your dataframe be grouped?")
     }
 
-    df %>%
-      nest(data_split = everything()) %>%
-      mutate(
-        detection = map(
+    df |>
+      tidyr::nest(data_split = everything()) |>
+      dplyr::mutate(
+        detection = purrr::map(
           .x = data_split, .f = nb_model, t = !!t, y = !!y,
           baseline_end = baseline_end, include_time = include_time
         )
-      ) %>%
-      select(-data_split) %>%
-      unnest(detection)
+      ) |>
+      dplyr::select(-data_split) |>
+      tidyr::unnest(detection)
   }
 }

@@ -30,6 +30,6 @@ A dataset containing:
 library(Rnssp)
 data("rnssp_stopwords")
 
-glimpse(rnssp_stopwords)
+dplyr::glimpse(rnssp_stopwords)
 }
 \keyword{datasets}

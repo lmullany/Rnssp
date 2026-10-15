@@ -13,7 +13,7 @@ test_that("alert_regression functions as expected!", {
   )
 
   df_regression <- alert_regression(df)
-  df2_regression <- alert_regression(group_by(df2, regions))
+  df2_regression <- alert_regression(dplyr::group_by(df2, regions))
 
   expect(is.data.frame(df_regression), failure_message = "alert_regression test fails!")
   expect_equal(length(df_regression), length(df) + 6)

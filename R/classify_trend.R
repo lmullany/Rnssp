@@ -54,7 +54,7 @@
 #' &startMonth=January&stratVal=&multiStratVal=geography&graphOnly=true&numSeries=0
 #' &graphOptions=multipleSmall&seriesPerYear=false&startMonth=January&nonZeroComposite=false"
 #'
-#' url <- url %>% gsub("\n", "", .)
+#' url <- url |> gsub("\n", "", x=_)
 #'
 #' api_data <- myProfile$get_api_data(url)
 #'
@@ -65,9 +65,9 @@
 #' # Visualize Montana State trend
 #' pal <- c("#FF0000", "#1D8AFF", "#FFF70E", "grey90")
 #'
-#' data_trend %>%
-#'   mutate(percent = data_count / all_count * 100) %>%
-#'   filter(title == "Montana") %>%
+#' data_trend |>
+#'   dplyr::mutate(percent = data_count / all_count * 100) |>
+#'   dplyr::filter(title == "Montana") |>
 #'   ggplot(., aes(x = t, y = percent)) +
 #'   geom_line(color = pal[2], alpha = 0.5) +
 #'   geom_hline(yintercept = -0.4, size = 4.5, color = "white") +
@@ -83,25 +83,25 @@
 #' }
 #'
 classify_trend <- function(df, t = date, data_count = dataCount, all_count = allCount, B = 12) {
-  grouping <- group_vars(df)
-  all_count <- enquo(all_count)
-  t <- enquo(t)
-  data_count <- enquo(data_count)
-  df %>%
-    mutate(
+  grouping <- dplyr::group_vars(df)
+  all_count <- rlang::enquo(all_count)
+  t <- rlang::enquo(t)
+  data_count <- rlang::enquo(data_count)
+  df |>
+    dplyr::mutate(
       t = as.Date(!!t),
       data_count = as.numeric(!!data_count),
       all_count = as.numeric(!!all_count)
-    ) %>%
-    mutate(
+    ) |>
+    dplyr::mutate(
       trend_analysis = slider::slide(
-        .x = tibble(t, data_count, all_count),
+        .x = tibble::tibble(t, data_count, all_count),
         .f = function(.x) {
           if (sum(.x$data_count) > 10) {
-            glm(cbind(data_count, all_count - data_count) ~ t, family = "binomial", data = .x) %>%
-              broom::tidy() %>%
-              filter(term == "t") %>%
-              select(statistic, p.value)
+            glm(cbind(data_count, all_count - data_count) ~ t, family = "binomial", data = .x) |>
+              broom::tidy() |>
+              dplyr::filter(term == "t") |>
+              dplyr::select(statistic, p.value)
           } else {
             data.frame(statistic = NA, p.value = NA)
           }
@@ -109,11 +109,11 @@ classify_trend <- function(df, t = date, data_count = dataCount, all_count = all
         .before = B - 1,
         .complete = TRUE
       )
-    ) %>%
-    tidyr::unnest(trend_analysis) %>%
-    ungroup() %>%
-    mutate(
-      trend_classification = case_when(
+    ) |>
+    tidyr::unnest(trend_analysis) |>
+    dplyr::ungroup() |>
+    dplyr::mutate(
+      trend_classification = dplyr::case_when(
         p.value < 0.01 & statistic > 0 ~ "Significant Increase",
         p.value < 0.01 & statistic < 0 ~ "Significant Decrease",
         is.na(p.value) ~ "Insufficient Data",

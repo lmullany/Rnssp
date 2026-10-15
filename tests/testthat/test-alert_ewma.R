@@ -13,7 +13,7 @@ test_that("alert_ewma functions as expected!", {
   )
 
   df_ewma <- alert_ewma(df)
-  df2_ewma <- alert_ewma(group_by(df2, regions))
+  df2_ewma <- alert_ewma(dplyr::group_by(df2, regions))
 
   expect(is.data.frame(df_ewma), failure_message = "alert_ewma test fails!")
   expect_equal(length(df_ewma), length(df) + 4)

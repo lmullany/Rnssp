@@ -73,7 +73,7 @@ endDate=20Nov20&percentParam=ccddCategory&datasource=va_hosp&startDate=22Aug20
 &startMonth=January&stratVal=&multiStratVal=geography&graphOnly=true&numSeries=0
 &graphOptions=multipleSmall&seriesPerYear=false&startMonth=January&nonZeroComposite=false"
 
-url <- url \%>\% gsub("\n", "", .)
+url <- url |> gsub("\n", "", x=_)
 
 api_data <- myProfile$get_api_data(url)
 
@@ -84,9 +84,9 @@ data_trend <- classify_trend(df, data_count = dataCount, all_count = allCount)
 # Visualize Montana State trend
 pal <- c("#FF0000", "#1D8AFF", "#FFF70E", "grey90")
 
-data_trend \%>\%
-  mutate(percent = data_count / all_count * 100) \%>\%
-  filter(title == "Montana") \%>\%
+data_trend |>
+  dplyr::mutate(percent = data_count / all_count * 100) |>
+  dplyr::filter(title == "Montana") |>
   ggplot(., aes(x = t, y = percent)) +
   geom_line(color = pal[2], alpha = 0.5) +
   geom_hline(yintercept = -0.4, size = 4.5, color = "white") +

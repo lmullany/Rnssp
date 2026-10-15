@@ -13,7 +13,7 @@ test_that("alert_switch functions as expected!", {
   )
 
   df_switch <- alert_switch(df)
-  df2_switch <- alert_switch(group_by(df2, regions))
+  df2_switch <- alert_switch(dplyr::group_by(df2, regions))
 
   expect(is.data.frame(df_switch), failure_message = "alert_switch test fails!")
   expect_equal(length(df_switch), length(df) + 5)

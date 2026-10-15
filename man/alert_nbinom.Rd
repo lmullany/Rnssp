@@ -72,7 +72,7 @@ head(df_nbinom)
 
 
 ## Visualize alert
-df_nbinom \%>\%
+df_nbinom |>
   ggplot() +
   theme_classic() +
   geom_line(aes(x = date, y = cases), linewidth = 0.3) +
@@ -118,7 +118,7 @@ Feb2022&ccddCategory=cdc\%20respiratory\%20syncytial\%20virus\%20v1&percentParam
 &userId=2362&aqtTarget=TimeSeries"
 
 
-url <- url \%>\% gsub("\n", "", .)
+url <- url |> gsub("\n", "", x=_)
 
 api_data <- get_api_data(url)
 
@@ -129,7 +129,7 @@ df_nbinom <- alert_nbinom(df, baseline_end = as.Date("2020-03-01"))
 
 
 ### Visualize alert
-df_nbinom \%>\%
+df_nbinom |>
   ggplot() +
   geom_line(aes(x = date, y = count), linewidth = 0.3) +
   geom_line(aes(x = date, y = estimate), color = "blue", linewidth = 0.3) +

@@ -21,5 +21,5 @@
 #' library(Rnssp)
 #' data("rnssp_stopwords")
 #'
-#' glimpse(rnssp_stopwords)
+#' dplyr::glimpse(rnssp_stopwords)
 "rnssp_stopwords"

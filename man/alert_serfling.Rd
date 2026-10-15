@@ -70,7 +70,7 @@ df_serfling <- alert_serfling(ts1,
 head(df_serfling)
 
 ### Visualize alert
-df_serfling \%>\%
+df_serfling |>
   ggplot() +
   theme_classic() +
   geom_line(aes(x = date, y = cases), linewidth = 0.3) +
@@ -116,7 +116,7 @@ Feb2022&ccddCategory=cdc\%20respiratory\%20syncytial\%20virus\%20v1&percentParam
 &userId=2362&aqtTarget=TimeSeries"
 
 
-url <- url \%>\% gsub("\n", "", .)
+url <- url |> gsub("\n", "", x=_)
 
 api_data <- get_api_data(url)
 
@@ -127,7 +127,7 @@ df_serfling <- alert_serfling(df, baseline_end = as.Date("2020-03-01"))
 
 
 ### Visualize alert
-df_serfling \%>\%
+df_serfling |>
   ggplot() +
   theme_classic() +
   geom_line(aes(x = date, y = count), linewidth = 0.3) +

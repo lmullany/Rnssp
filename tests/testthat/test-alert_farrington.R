@@ -21,8 +21,8 @@ test_that("alert_farrington functions as expected!", {
   df_farr_original <- alert_farrington(df)
   df_farr_modified <- alert_farrington(df, method = "modified")
 
-  df2_farr_original <- alert_farrington(group_by(df2, regions))
-  df2_farr_modified <- alert_farrington(group_by(df2, regions), method = "modified")
+  df2_farr_original <- alert_farrington(dplyr::group_by(df2, regions))
+  df2_farr_modified <- alert_farrington(dplyr::group_by(df2, regions), method = "modified")
 
   expect(is.data.frame(df_farr_original), failure_message = "alert_farrington test fails for `method = 'original'`!")
   expect(is.data.frame(df_farr_modified), failure_message = "alert_farrington test fails for `method = 'modified'`!")
@@ -40,5 +40,5 @@ test_that("alert_farrington functions as expected!", {
   expect_error(alert_farrington(df, method = "notamethod"))
   expect_error(alert_farrington(df2))
   expect_error(alert_farrington(df3))
-  expect_error(alert_farrington(group_by(df2, regions), method = "notamethod"))
+  expect_error(alert_farrington(dplyr::group_by(df2, regions), method = "notamethod"))
 })

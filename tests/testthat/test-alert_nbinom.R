@@ -19,7 +19,7 @@ test_that("alert_nbinom functions as expected!", {
   )
 
   df_nbinom <- alert_nbinom(df, baseline_end = as.Date("2020-03-01"))
-  df2_nbinom <- alert_nbinom(group_by(df2, regions),
+  df2_nbinom <- alert_nbinom(dplyr::group_by(df2, regions),
     baseline_end = as.Date("2020-03-01"), include_time = FALSE
   )
 

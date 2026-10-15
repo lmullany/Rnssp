@@ -80,21 +80,21 @@ endDate=20Nov20&ccddCategory=cli\%20cc\%20with\%20cli\%20dd\%20and\%20coronaviru
 &stratVal=&multiStratVal=geography&graphOnly=true&numSeries=0&graphOptions=multipleSmall
 &seriesPerYear=false&startMonth=January&nonZeroComposite=false"
 
-url <- url \%>\% gsub("\n", "", .)
+url <- url |> gsub("\n", "", x=_)
 
 api_data <- get_api_data(url)
 
 df <- api_data$timeSeriesData
 
-df_regression <- df \%>\%
-  group_by(hospitaldhhsregion_display) \%>\%
+df_regression <- df |>
+  dplyr::group_by(hospitaldhhsregion_display) |>
   alert_regression(t = date, y = dataCount)
 
 # Visualize alert for HHS Region 4
-df_regression_region <- df_regression \%>\%
-  filter(hospitaldhhsregion_display == "Region 4")
+df_regression_region <- df_regression |>
+  dplyr::filter(hospitaldhhsregion_display == "Region 4")
 
-df_regression_region \%>\%
+df_regression_region |>
   ggplot() +
   geom_line(aes(x = date, y = dataCount), color = "grey70") +
   geom_line(

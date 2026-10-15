@@ -16,35 +16,35 @@
 #' @keywords internal
 #'
 serfling_model <- function(df, t, y, baseline_end) {
-  t <- enquo(t)
-  y <- enquo(y)
+  t <- rlang::enquo(t)
+  y <- rlang::enquo(y)
 
-  input_data <- df %>%
-    mutate(
+  input_data <- df |>
+    dplyr::mutate(
       t = as.Date(!!t),
       y = as.numeric(!!y),
-      obs = row_number(),
+      obs = dplyr::row_number(),
       cos = cos((2 * pi * obs) / 52.18),
       sin = sin((2 * pi * obs) / 52.18),
       split = ifelse(t <= baseline_end, "Baseline Period", "Prediction Period"),
-      epidemic_period = ifelse(month(t) >= 10 | month(t) <= 5, TRUE, FALSE)
+      epidemic_period = ifelse(lubridate::month(t) >= 10 | lubridate::month(t) <= 5, TRUE, FALSE)
     )
 
-  baseline_data <- input_data %>%
-    filter(split == "Baseline Period") %>%
-    filter(!epidemic_period)
+  baseline_data <- input_data |>
+    dplyr::filter(split == "Baseline Period") |>
+    dplyr::filter(!epidemic_period)
 
   baseline_model <- lm(y ~ obs + cos + sin, data = baseline_data)
   predict(baseline_model,
     newdata = input_data, se.fit = TRUE,
     interval = "prediction", level = 0.90
-  ) %>%
-    as.data.frame() %>%
-    select(estimate = fit.fit, threshold = fit.upr) %>%
-    bind_cols(input_data) %>%
-    relocate(c(estimate, threshold), .after = cos) %>%
-    select(-obs, -cos, -sin) %>%
-    mutate(
+  ) |>
+    as.data.frame() |>
+    dplyr::select(estimate = fit.fit, threshold = fit.upr) |>
+    dplyr::bind_cols(input_data) |>
+    dplyr::relocate(c(estimate, threshold), .after = cos) |>
+    dplyr::select(-obs, -cos, -sin) |>
+    dplyr::mutate(
       split = factor(split, levels = c("Baseline Period", "Prediction Period")),
       alarm = ifelse(!!y > threshold, TRUE, FALSE)
     )
@@ -78,6 +78,7 @@ serfling_model <- function(df, t, y, baseline_end) {
 #' @return A data frame with model estimates, upper prediction interval bounds,
 #'     and a binary alarm indicator field
 #'     was included
+#' @export
 #'
 #' @examples
 #' # Example 1
@@ -110,7 +111,7 @@ serfling_model <- function(df, t, y, baseline_end) {
 #' head(df_serfling)
 #'
 #' ### Visualize alert
-#' df_serfling %>%
+#' df_serfling |>
 #'   ggplot() +
 #'   theme_classic() +
 #'   geom_line(aes(x = date, y = cases), linewidth = 0.3) +
@@ -156,7 +157,7 @@ serfling_model <- function(df, t, y, baseline_end) {
 #' &userId=2362&aqtTarget=TimeSeries"
 #'
 #'
-#' url <- url %>% gsub("\n", "", .)
+#' url <- url |> gsub("\n", "", x=_)
 #'
 #' api_data <- get_api_data(url)
 #'
@@ -167,7 +168,7 @@ serfling_model <- function(df, t, y, baseline_end) {
 #'
 #'
 #' ### Visualize alert
-#' df_serfling %>%
+#' df_serfling |>
 #'   ggplot() +
 #'   theme_classic() +
 #'   geom_line(aes(x = date, y = count), linewidth = 0.3) +
@@ -198,20 +199,20 @@ serfling_model <- function(df, t, y, baseline_end) {
 #' }
 #'
 alert_serfling <- function(df, t = date, y = count, baseline_end) {
-  t <- enquo(t)
-  y <- enquo(y)
+  t <- rlang::enquo(t)
+  y <- rlang::enquo(y)
 
-  df <- df %>%
-    mutate(
+  df <- df |>
+    dplyr::mutate(
       {{ t }} := as.Date(!!t),
       {{ y }} := as.numeric(!!y)
     )
 
   # Check baseline length and for sufficient historical data
-  baseline_n_wks <- df %>%
-    filter(!!t <= baseline_end) %>%
-    pull(!!t) %>%
-    unique() %>%
+  baseline_n_wks <- df |>
+    dplyr::filter(!!t <= baseline_end) |>
+    dplyr::pull(!!t) |>
+    unique() |>
     length()
 
   baseline_n_yrs <- baseline_n_wks / 52
@@ -221,11 +222,11 @@ alert_serfling <- function(df, t = date, y = count, baseline_end) {
                    greater than or equal to 2 years")
   }
 
-  baseline <- df %>%
-    filter(!!t <= baseline_end)
+  baseline <- df |>
+    dplyr::filter(!!t <= baseline_end)
 
-  baseline_dates <- baseline %>%
-    pull(!!t)
+  baseline_dates <- baseline |>
+    dplyr::pull(!!t)
 
   if (length(unique(seq.Date(min(baseline_dates), max(baseline_dates),
     by = "1 week"
@@ -235,24 +236,24 @@ alert_serfling <- function(df, t = date, y = count, baseline_end) {
   }
 
   # Check for grouping variables
-  grouped_df <- is.grouped_df(df)
+  grouped_df <- dplyr::is.grouped_df(df)
 
   if (grouped_df) {
-    groups <- group_vars(df)
+    groups <- dplyr::group_vars(df)
 
-    df %>%
-      nest(data_split = -all_of(groups)) %>%
-      mutate(
-        detection = map(
+    df |>
+      tidyr::nest(data_split = -all_of(groups)) |>
+      dplyr::mutate(
+        detection = purrr::map(
           .x = data_split, .f = serfling_model, t = !!t, y = !!y,
           baseline_end = baseline_end
         )
-      ) %>%
-      select(-data_split) %>%
-      unnest(detection)
+      ) |>
+      dplyr::select(-data_split) |>
+      tidyr::unnest(detection)
   } else {
-    unique_dates <- df %>%
-      pull(!!t) %>%
+    unique_dates <- df |>
+      dplyr::pull(!!t) |>
       unique()
 
     if (length(unique_dates) != nrow(df)) {
@@ -260,15 +261,15 @@ alert_serfling <- function(df, t = date, y = count, baseline_end) {
                      not equal the number of rows. Should your dataframe be grouped?")
     }
 
-    df %>%
-      nest(data_split = everything()) %>%
-      mutate(
-        detection = map(
+    df |>
+      tidyr::nest(data_split = everything()) |>
+      dplyr::mutate(
+        detection = purrr::map(
           .x = data_split, .f = serfling_model, t = !!t, y = !!y,
           baseline_end = baseline_end
         )
-      ) %>%
-      select(-data_split) %>%
-      unnest(detection)
+      ) |>
+      dplyr::select(-data_split) |>
+      tidyr::unnest(detection)
   }
 }
