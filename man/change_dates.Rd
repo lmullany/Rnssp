@@ -25,7 +25,7 @@ library(Rnssp)
 url <- "https://essence.syndromicsurveillance.org/nssp_essence/api/alerts/hospitalSyndromeAlerts?
 end_date=31Jan2021&start_date=29Jan2021"
 
-url <- url |> gsub("\n", "", x=_)
+url <- gsub("\n", "", x = url)
 
 # Change start date to January 15, 2021
 url |> change_dates(start_date = "2021-01-15")

@@ -26,14 +26,14 @@ The Rnssp functions include:
 \section{Rnssp vignettes}{
 
 The vignettes serve as instructive tutorials demonstrating practical uses of the
-Rnssp package. Please run the \code{\link[Rnnsp]{Rnssp_vignettes()}} function to browse all available vignettes.
+Rnssp package. Please run the \code{\link[Rnssp]{Rnssp_vignettes()}} function to browse all available vignettes.
 }
 
 \section{Rnssp Rmarkdown templates}{
 
 By default, the Rnssp package comes with one R Markdown template. We leave it up
 to users to decide which template to extend the package with post-installation.
-To list all available template, run the \code{\link[Rnnsp]{list_templates()}} function. Please, check
+To list all available template, run the \code{\link[Rnssp]{list_templates()}} function. Please, check
 the Rnssp R markdown template Github repository at
 \href{https://github.com/cdcgov/Rnssp-rmd-templates}{https://github.com/cdcgov/Rnssp-rmd-templates}.
 }
@@ -43,7 +43,7 @@ the Rnssp R markdown template Github repository at
 The Rnssp package comes with one custom-built Rnssp Shiny application.
 Users may run Rnssp custom-built shiny applications via Rnssp Rstudio addins
 or via the \code{\link[Rnssp]{run_app()}} utility function.
-To list all available Rnssp shiny apps, run the \code{\link[Rnnsp]{list_apps()}} function.
+To list all available Rnssp shiny apps, run the \code{\link[Rnssp]{list_apps()}} function.
 Please, check the Rnssp-shiny-appse Github repository at
 \href{https://github.com/cdcgov/Rnssp-shiny-apps}{https://github.com/cdcgov/Rnssp-shiny-apps}.
 }

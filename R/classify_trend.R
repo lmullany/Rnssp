@@ -54,7 +54,7 @@
 #' &startMonth=January&stratVal=&multiStratVal=geography&graphOnly=true&numSeries=0
 #' &graphOptions=multipleSmall&seriesPerYear=false&startMonth=January&nonZeroComposite=false"
 #'
-#' url <- url |> gsub("\n", "", x=_)
+#' url <- url |> gsub("\n", "", x = _)
 #'
 #' api_data <- myProfile$get_api_data(url)
 #'

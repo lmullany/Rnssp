@@ -116,7 +116,7 @@ Feb2022&ccddCategory=cdc\%20respiratory\%20syncytial\%20virus\%20v1&percentParam
 &userId=2362&aqtTarget=TimeSeries"
 
 
-url <- url |> gsub("\n", "", x=_)
+url <- url |> gsub("\n", "", x = _)
 
 api_data <- get_api_data(url)
 

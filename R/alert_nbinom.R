@@ -233,7 +233,7 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
 #' &userId=2362&aqtTarget=TimeSeries"
 #'
 #'
-#' url <- url |> gsub("\n", "", x=_)
+#' url <- url |> gsub("\n", "", x = _)
 #'
 #' api_data <- get_api_data(url)
 #'

@@ -89,7 +89,7 @@ endDate=20Nov20&ccddCategory=cli\%20cc\%20with\%20cli\%20dd\%20and\%20coronaviru
 &stratVal=&multiStratVal=geography&graphOnly=true&numSeries=0&graphOptions=multipleSmall
 &seriesPerYear=false&startMonth=January&nonZeroComposite=false"
 
-url <- url |> gsub("\n", "", x=_)
+url <- url |> gsub("\n", "", x = _)
 
 api_data <- get_api_data(url)
 

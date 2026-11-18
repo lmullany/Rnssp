@@ -14,7 +14,7 @@ Maintainer: Gbedegnon Roseric Azondekon <gazondekon@cdc.gov>
 Description: A collection of tools, functions, and Rmarkdown templates 
     that supports the National Syndromic Surveillance Program Community of Practice.
 Depends: 
-    R (>= 3.6.0)
+    R (>= 4.1.0)
 License: file LICENSE
 URL: https://cdcgov.github.io/Rnssp, https://github.com/CDCgov/Rnssp
 Encoding: UTF-8
@@ -24,11 +24,9 @@ Imports:
     assertions,
     cli,
     data.table,
-    DT,
     dplyr,
     getPass,
     httr,
-    janitor,
     jsonlite,
     lubridate,
     magrittr,
@@ -37,7 +35,6 @@ Imports:
     readr,
     rstudioapi (>= 0.5),
     safer,
-    sf,
     shiny (>= 0.13),
     slider,
     stringi,
@@ -46,7 +43,8 @@ Imports:
     tidyr,
     yaml,
     MASS,
-    broom
+    broom,
+    rlang
 Suggests:
     testthat,
     knitr,
@@ -55,7 +53,9 @@ Suggests:
     forcats,
     ggplot2,
     ggpubr,
+    janitor,
     ggraph,
+    ggside,
     ggthemes,
     igraph,
     tidytext,

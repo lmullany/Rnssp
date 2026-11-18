@@ -97,13 +97,13 @@ add_rmd_template_gui <- function() {
       # conditionally render a loader UI when rv$template_df is not yet fetched
       if (!rv$df_ready) {
         return({
-          div(
+          shiny::tags$div(
             class = "wrapper",
-            HTML('<svg height="200" width="200">
+            shiny::HTML('<svg height="200" width="200">
                     <circle id="loader" cx="100" cy="100" r="50" stroke="#506396" stroke-width="5" fill="transparent" />
                   </svg>'),
             # set shiny input flag indicating that the loader is rendered on screen
-            tags$script("Shiny.setInputValue('loader_rendered', Date());")
+            shiny::tags$script("Shiny.setInputValue('loader_rendered', Date());")
           )
         })
       }
@@ -296,7 +296,7 @@ create_user_profile_gui <- function() {
       }
 
       if (isTRUE(input$saveProfile)) {
-        fmt <- input$format %||% ".rda"
+        fmt <- rlang::`%||%`(input$format, ".rda")
         target <- file.path(Sys.getenv("HOME"), paste0(filename, fmt))
 
         if (identical(fmt, ".rda")) {
@@ -424,13 +424,13 @@ run_app_gui <- function() {
       # conditionally render a loader UI when rv$template_df is not yet fetched
       if (!rv$df_ready) {
         return({
-          div(
+          shiny::tags$div(
             class = "wrapper",
-            HTML('<svg height="200" width="200">
+            shiny::HTML('<svg height="200" width="200">
                     <circle id="loader" cx="100" cy="100" r="50" stroke="#506396" stroke-width="5" fill="transparent" />
                   </svg>'),
             # set shiny input flag indicating that the loader is rendered on screen
-            tags$script("Shiny.setInputValue('loader_rendered', Date());")
+            shiny::tags$script("Shiny.setInputValue('loader_rendered', Date());")
           )
         })
       }

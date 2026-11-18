@@ -74,7 +74,8 @@ Apikey <- R6::R6Class(
       headers[[private$..key_name]] <- private$..api_key$value |>
         safer::decrypt_string(private$..__$value)
       apir <- url |>
-        httr::GET(httr::add_headers(unlist(headers)),
+        httr::GET(
+          httr::add_headers(unlist(headers)),
           httr::write_disk(graph, overwrite = TRUE)
         )
       apir$request$headers <- NULL

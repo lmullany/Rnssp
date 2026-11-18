@@ -101,41 +101,41 @@ We perform a standard series of text cleansing and pre-processing operations to 
 data <- api_data %>%
   janitor::clean_names() %>%
   data.table() %>%
-  mutate(
+  dplyr::mutate(
     chief_complaint_parsed = chief_complaint_parsed %>%
-      str_remove_all(.stopwords) %>%
-      str_remove_all(.pattern1) %>%
-      str_remove_all("CHIEF COMPLAINT|SEE CHIEF") %>%
-      str_remove_all(.pattern2) %>%
-      str_remove_all(.pattern3) %>%
-      str_remove_all(.pattern4) %>%
-      str_squish() %>%
+      stringr::str_remove_all(.stopwords) %>%
+      stringr::str_remove_all(.pattern1) %>%
+      stringr::str_remove_all("CHIEF COMPLAINT|SEE CHIEF") %>%
+      stringr::str_remove_all(.pattern2) %>%
+      stringr::str_remove_all(.pattern3) %>%
+      stringr::str_remove_all(.pattern4) %>%
+      stringr::str_squish() %>%
       ifelse(nchar(.) <= 3, "", .) %>%
-      str_replace_na(""),
+      stringr::str_replace_na(""),
     discharge_diagnosis = discharge_diagnosis %>%
-      str_remove_all(.pattern2) %>%
-      str_remove_all(.pattern3) %>%
-      str_replace_all(.pattern4, " ") %>%
-      str_squish() %>%
-      str_remove_all(.pattern5) %>%
+      stringr::str_remove_all(.pattern2) %>%
+      stringr::str_remove_all(.pattern3) %>%
+      stringr::str_replace_all(.pattern4, " ") %>%
+      stringr::str_squish() %>%
+      stringr::str_remove_all(.pattern5) %>%
       ifelse(nchar(.) <= 2, "", .) %>%
-      str_replace_na(""),
-    ccdd2 = str_c(chief_complaint_parsed, discharge_diagnosis, sep = " "),
+      stringr::str_replace_na(""),
+    ccdd2 = stringr::str_c(chief_complaint_parsed, discharge_diagnosis, sep = " "),
     chief_complaint_parsed = vapply(
-      lapply(str_split(chief_complaint_parsed, " "), unique),
+      lapply(stringr::str_split(chief_complaint_parsed, " "), unique),
       paste, character(1L),
       collapse = " "
     ),
     discharge_diagnosis = vapply(
-      lapply(str_split(discharge_diagnosis, " "), unique),
+      lapply(stringr::str_split(discharge_diagnosis, " "), unique),
       paste, character(1L),
       collapse = " "
     ),
-    ccdd2 = vapply(lapply(str_split(ccdd2, " "), unique), paste, character(1L), collapse = " "),
-    ccdd2 = str_squish(ccdd2)
+    ccdd2 = vapply(lapply(stringr::str_split(ccdd2, " "), unique), paste, character(1L), collapse = " "),
+    ccdd2 = stringr::str_squish(ccdd2)
   ) %>%
   tibble::as_tibble() %>%
-  mutate(linenumber = row_number())
+  dplyr::mutate(linenumber = dplyr::row_number())
 ```
 
 
@@ -149,32 +149,32 @@ After cleaning and preparing free-text fields, the next step in most natural lan
 
 ```{r unnesting}
 cc_unigrams <- data %>%
-  unnest_tokens(output = word, input = chief_complaint_parsed, token = "words") %>%
-  filter(!is.na(word)) %>%
-  anti_join(stop_words)
+  tidytext::unnest_tokens(output = word, input = chief_complaint_parsed, token = "words") %>%
+  dplyr::filter(!is.na(word)) %>%
+  dplyr::anti_join(tidytext::stop_words)
 
 cc_bigrams <- data %>%
-  unnest_tokens(
+  tidytext::unnest_tokens(
     output = bigram, input = chief_complaint_parsed,
     token = "ngrams", n = 2
   ) %>%
-  filter(!is.na(bigram)) %>%
-  separate(bigram,
+  dplyr::filter(!is.na(bigram)) %>%
+  tidyr::separate(bigram,
     into = c("word1", "word2"), sep = " ",
     remove = FALSE
   ) %>%
-  filter(!word1 %in% stop_words) %>%
-  filter(!word2 %in% stop_words)
+  dplyr::filter(!word1 %in% tidytext::stop_words) %>%
+  dplyr::filter(!word2 %in% tidytext::stop_words)
 
 cc_trigrams <- data %>%
-  unnest_tokens(
+  tidytext::unnest_tokens(
     output = trigram, input = chief_complaint_parsed,
     token = "ngrams", n = 3
   ) %>%
-  separate(trigram, into = c("word1", "word2", "word3"), sep = " ", remove = FALSE) %>%
-  filter(!word1 %in% stop_words) %>%
-  filter(!word2 %in% stop_words) %>%
-  filter(!word3 %in% stop_words)
+  tidyr::separate(trigram, into = c("word1", "word2", "word3"), sep = " ", remove = FALSE) %>%
+  dplyr::filter(!word1 %in% tidytext::stop_words) %>%
+  dplyr::filter(!word2 %in% tidytext::stop_words) %>%
+  dplyr::filter(!word3 %in% tidytext::stop_words)
 ```
 
 # n-gram Frequencies 
@@ -182,53 +182,52 @@ cc_trigrams <- data %>%
 To summarize the top 10 chief complaint unigram and bigram frequencies, we can use the `count` and `top_n` functions from `dplyr` and visualize the results in horizontal bar charts. In order for the bars to be in descending order, we need to use `fct_reorder` from `forcats` to factor the n-grams with the levels being the frequencies themselves. By default, `ggplot` will arrange the bars in alphabetical order unless the categorical variable is factored. After creating two separate `ggplot` objects, we can use `ggarrange` to arrange the plots into a horizontal grid. 
 
 ```{r bigram-frequencies, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 7}
-
-pal <- economist_pal()(2)
+pal <- ggthemes::economist_pal()(2)
 
 cc_unigram_freq <- cc_unigrams %>%
-  count(word, sort = TRUE) %>%
-  ungroup() %>%
-  top_n(10) %>%
-  mutate(
-    word = str_to_upper(word),
-    word = fct_reorder(word, n)
+  dplyr::count(word, sort = TRUE) %>%
+  dplyr::ungroup() %>%
+  dplyr::top_n(10) %>%
+  dplyr::mutate(
+    word = stringr::str_to_upper(word),
+    word = forcats::fct_reorder(word, n)
   ) %>%
-  ggplot(aes(x = word, y = n)) +
+  ggplot2::ggplot(ggplot2::aes(x = word, y = n)) +
   geom_col(show.legend = FALSE, color = "black", fill = pal[1]) +
-  scale_y_continuous(labels = scales::comma) +
-  theme_few() +
-  labs(
+  ggplot2::scale_y_continuous(labels = scales::comma) +
+  ggthemes::theme_few() +
+  ggplot2::labs(
     title = "Top 10 Chief Complaint Unigram Frequencies",
     x = "Unigram",
     y = "Frequency"
   ) +
   coord_flip() +
-  theme(
+  ggplot2::theme(
     plot.margin = unit(c(1, 1, 1, 1), "cm"),
-    title = element_text(size = 9)
+    title = ggplot2::element_text(size = 9)
   )
 
 cc_bigram_freq <- cc_bigrams %>%
-  count(bigram, sort = TRUE) %>%
-  ungroup() %>%
-  top_n(10) %>%
-  mutate(
-    bigram = str_to_upper(bigram),
-    bigram = fct_reorder(bigram, n)
+  dplyr::count(bigram, sort = TRUE) %>%
+  dplyr::ungroup() %>%
+  dplyr::top_n(10) %>%
+  dplyr::mutate(
+    bigram = stringr::str_to_upper(bigram),
+    bigram = forcats::fct_reorder(bigram, n)
   ) %>%
-  ggplot(aes(x = bigram, y = n)) +
+  ggplot2::ggplot(ggplot2::aes(x = bigram, y = n)) +
   geom_col(show.legend = FALSE, color = "black", fill = pal[1]) +
-  scale_y_continuous(labels = scales::comma) +
-  theme_few() +
-  labs(
+  ggplot2::scale_y_continuous(labels = scales::comma) +
+  ggthemes::theme_few() +
+  ggplot2::labs(
     title = "Top 10 Chief Complaint Bigram Frequencies",
     x = "Bigram",
     y = "Frequency"
   ) +
   coord_flip() +
-  theme(
+  ggplot2::theme(
     plot.margin = unit(c(1, 1, 1, 1), "cm"),
-    title = element_text(size = 9)
+    title = ggplot2::element_text(size = 9)
   )
 
 ggarrange(cc_unigram_freq, cc_bigram_freq, nrow = 1, ncol = 2)
@@ -239,28 +238,27 @@ ggarrange(cc_unigram_freq, cc_bigram_freq, nrow = 1, ncol = 2)
 ## Chief Complaint Term Co-occurrence Network Graph
 
 ```{r co-occurrence-network, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 10}
-
 cc_cooccurrence_net <- cc_unigrams %>%
   pairwise_count(word, linenumber, sort = TRUE, upper = FALSE) %>%
-  top_n(200) %>%
+  dplyr::top_n(200) %>%
   slice(1:200) %>%
-  mutate(
+  dplyr::mutate(
     item1 = toupper(item1),
     item2 = toupper(item2)
   ) %>%
   graph_from_data_frame()
 
 ggraph(cc_cooccurrence_net, layout = "fr") +
-  geom_edge_link(aes(edge_alpha = n, edge_width = n),
+  ggraph::geom_edge_link(ggplot2::aes(edge_alpha = n, edge_width = n),
     edge_colour = pal[1],
     show.legend = FALSE
   ) +
-  geom_node_point(size = 3) +
-  geom_node_text(aes(label = name),
+  ggraph::geom_node_point(size = 3) +
+  ggraph::geom_node_text(ggplot2::aes(label = name),
     repel = TRUE,
     point.padding = unit(0.2, "lines")
   ) +
-  theme_void()
+  ggplot2::theme_void()
 ```
 
 ## Pearson Pairwise Correlation Chief Complaint Network Graph
@@ -287,20 +285,21 @@ Total          & $n_{\bullet 1}$ & $n_{\bullet 0}$        & $n$
 \end{table}
 
 ```{r correlation-network, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 10}
-
 cc_correlation_net <- cc_unigrams %>%
-  group_by(word) %>%
-  filter(n() >= 20) %>%
+  dplyr::group_by(word) %>%
+  dplyr::filter(dplyr::n() >= 20) %>%
   pairwise_cor(word, linenumber, sort = TRUE) %>%
-  filter(correlation > 0.5) %>%
+  dplyr::filter(correlation > 0.5) %>%
   graph_from_data_frame()
 
 ggraph(cc_correlation_net, layout = "fr") +
-  geom_edge_link(aes(edge_alpha = correlation),
+  ggraph::geom_edge_link(ggplot2::aes(edge_alpha = correlation),
     edge_colour = pal[1],
     show.legend = FALSE
   ) +
-  geom_node_point(size = 3) +
-  geom_node_text(aes(label = name), repel = TRUE) +
-  theme_void()
+  ggraph::geom_node_point(size = 3) +
+  ggraph::geom_node_text(ggplot2::aes(label = name), repel = TRUE) +
+  ggplot2::theme_void()
 ```
+
+

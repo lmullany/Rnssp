@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
 # Introduction {-}
 In this tutorial, we describe how to perform anomaly detection and trend classification analysis using time series data from NSSP-ESSENCE.
 
-This tutorial uses data from the NSSP-ESSENCE source for the CLI CC with CLI DD and Coronavirus DD v2 definition, limited to ED visits (Has been Emergency = “Yes”).
+This tutorial uses data from the NSSP-ESSENCE source for the CLI CC with CLI DD and Coronavirus DD v2 definition, limited to ED visits (Has been Emergency = â€œYesâ€).
 
 We start this tutorial by loading the `Rnssp` package.
 
@@ -65,16 +65,16 @@ url <- "https://essence2.syndromicsurveillance.org/nssp_essence/api/timeSeries?e
 # Data Pull from NSSP-ESSENCE
 api_data <- get_api_data(url, profile = myProfile)
 df <- api_data %>%
-  pluck("timeSeriesData")
+  purrr::pluck("timeSeriesData")
 
 # glimpse(df)
 ```
 
-Before applying an anomaly detection function, let’s first group the data by HHS regions:
+Before applying an anomaly detection function, letâ€™s first group the data by HHS regions:
 ```{r hhs}
 # Aggregating data to national level
 df_hhs <- df %>%
-  group_by(hospitaldhhsregion_display)
+  dplyr::group_by(hospitaldhhsregion_display)
 ```
 
 # Anomaly Detection
@@ -90,24 +90,24 @@ The EWMA detection algorithm can be performed with `alert_ewma()` function (run 
 df_ewma <- alert_ewma(df_hhs, t = date, y = dataCount)
 ```
 
-Let’s subset the dataframe to visualize the time series with the anomalies for Region 4:
+Letâ€™s subset the dataframe to visualize the time series with the anomalies for Region 4:
 
 ```{r alert_ewma_viz}
 # Filter the dataset
 df_ewma_region <- df_ewma %>%
-  filter(hospitaldhhsregion_display == "Region 4") %>%
-  mutate(alert = factor(alert, levels = c("blue", "red", "yellow", "grey")))
+  dplyr::filter(hospitaldhhsregion_display == "Region 4") %>%
+  dplyr::mutate(alert = factor(alert, levels = c("blue", "red", "yellow", "grey")))
 
 # Plot time series data
-ggplot(data = df_ewma_region) +
-  geom_line(aes(x = date, y = dataCount), color = "#254B73") +
-  geom_point(aes(x = date, y = dataCount, color = alert)) +
-  scale_color_manual(
+ggplot2::ggplot(data = df_ewma_region) +
+  ggplot2::geom_line(ggplot2::aes(x = date, y = dataCount), color = "#254B73") +
+  ggplot2::geom_point(ggplot2::aes(x = date, y = dataCount, color = alert)) +
+  ggplot2::scale_color_manual(
     values = c("#254B73", "#A50026", "#FDD081", "#DDDDDD"),
     name = "Detection",
     labels = c("None", "Alert", "Warning", "No Baseline Data")
   ) +
-  scale_y_continuous(
+  ggplot2::scale_y_continuous(
     limits = c(0, NA),
     expand = expansion(c(0, 0.2)),
     labels = scales::comma,
@@ -117,9 +117,9 @@ ggplot(data = df_ewma_region) +
     date_breaks = "1 week",
     name = "Date"
   ) +
-  theme_classic() +
-  theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5),
+  ggplot2::theme_classic() +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5),
     legend.position = "bottom",
     axis.ticks.length = unit(0.25, "cm"),
     legend.background = element_rect(color = "black", linewidth = 0.1)
@@ -139,24 +139,24 @@ The Adaptive Multiple Regression detector can be performed with the `alert_regre
 df_regression <- alert_regression(df_hhs, t = date, y = dataCount)
 ```
 
-Let’s filter `df_regression` and visualize the time series with the anomalies for Region 4:
+Letâ€™s filter `df_regression` and visualize the time series with the anomalies for Region 4:
 
 ```{r alert_regression_viz}
 # Filter the dataset
 df_regression_region <- df_regression %>%
-  filter(hospitaldhhsregion_display == "Region 4") %>%
-  mutate(alert = factor(alert, levels = c("blue", "red", "yellow", "grey")))
+  dplyr::filter(hospitaldhhsregion_display == "Region 4") %>%
+  dplyr::mutate(alert = factor(alert, levels = c("blue", "red", "yellow", "grey")))
 
 # Plot time series data
-ggplot(data = df_regression_region) +
-  geom_line(aes(x = date, y = dataCount), color = "#254B73") +
-  geom_point(aes(x = date, y = dataCount, color = alert)) +
-  scale_color_manual(
+ggplot2::ggplot(data = df_regression_region) +
+  ggplot2::geom_line(ggplot2::aes(x = date, y = dataCount), color = "#254B73") +
+  ggplot2::geom_point(ggplot2::aes(x = date, y = dataCount, color = alert)) +
+  ggplot2::scale_color_manual(
     values = c("#254B73", "#A50026", "#FDD081", "#DDDDDD"),
     name = "Detection",
     labels = c("None", "Alert", "Warning", "No Baseline Data")
   ) +
-  scale_y_continuous(
+  ggplot2::scale_y_continuous(
     limits = c(0, NA),
     expand = expansion(c(0, 0.2)),
     labels = scales::comma,
@@ -166,9 +166,9 @@ ggplot(data = df_regression_region) +
     date_breaks = "1 week",
     name = "Date"
   ) +
-  theme_classic() +
-  theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5),
+  ggplot2::theme_classic() +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5),
     legend.position = "bottom",
     axis.ticks.length = unit(0.25, "cm"),
     legend.background = element_rect(color = "black", linewidth = 0.1)
@@ -188,24 +188,24 @@ The Regression/EWMA algorithm can be performed with the `alert_switch()` functio
 df_switch <- alert_switch(df_hhs, t = date, y = dataCount)
 ```
 
-Let’s visualize the time series with the anomalies for Region 4:
+Letâ€™s visualize the time series with the anomalies for Region 4:
 
 ```{r alert_switch_viz}
 # Filter the dataset
 df_switch_region <- df_switch %>%
-  filter(hospitaldhhsregion_display == "Region 4") %>%
-  mutate(alert = factor(alert, levels = c("blue", "red", "yellow", "grey")))
+  dplyr::filter(hospitaldhhsregion_display == "Region 4") %>%
+  dplyr::mutate(alert = factor(alert, levels = c("blue", "red", "yellow", "grey")))
 
 # Plot time series data
-ggplot(data = df_switch_region) +
-  geom_line(aes(x = date, y = dataCount), color = "#254B73") +
-  geom_point(aes(x = date, y = dataCount, color = alert)) +
-  scale_color_manual(
+ggplot2::ggplot(data = df_switch_region) +
+  ggplot2::geom_line(ggplot2::aes(x = date, y = dataCount), color = "#254B73") +
+  ggplot2::geom_point(ggplot2::aes(x = date, y = dataCount, color = alert)) +
+  ggplot2::scale_color_manual(
     values = c("#254B73", "#A50026", "#FDD081", "#DDDDDD"),
     name = "Detection",
     labels = c("None", "Alert", "Warning", "No Baseline Data")
   ) +
-  scale_y_continuous(
+  ggplot2::scale_y_continuous(
     limits = c(0, NA),
     expand = expansion(c(0, 0.2)),
     labels = scales::comma,
@@ -215,9 +215,9 @@ ggplot(data = df_switch_region) +
     date_breaks = "1 week",
     name = "Date"
   ) +
-  theme_classic() +
-  theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5),
+  ggplot2::theme_classic() +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5),
     legend.position = "bottom",
     axis.ticks.length = unit(0.25, "cm"),
     legend.background = element_rect(color = "black", linewidth = 0.1)
@@ -240,7 +240,7 @@ The Original Farrington temporal detector can be applied as below:
 
 ```{r alert_farrington_original}
 synth_ts1 <- simulated_data %>%
-  filter(id == "Scenario #1")
+  dplyr::filter(id == "Scenario #1")
 
 df_farr_original <- alert_farrington(synth_ts1, t = date, y = cases)
 ```
@@ -254,19 +254,19 @@ df_farr_modified <- alert_farrington(
   y = cases,
   method = "modified"
 ) %>%
-  mutate(alert = factor(alert, levels = c("blue", "red", "grey")))
+  dplyr::mutate(alert = factor(alert, levels = c("blue", "red", "grey")))
 ```
 
-Let’s visualize the time series with the detected anomalies:
+Letâ€™s visualize the time series with the detected anomalies:
 
 ```{r alert_farrington_modified_viz}
-ggplot(data = df_farr_modified) +
-  geom_line(aes(x = date, y = cases), color = "#254B73") +
-  geom_point(aes(x = date, y = cases, color = alert), show.legend = FALSE) +
-  scale_color_manual(
+ggplot2::ggplot(data = df_farr_modified) +
+  ggplot2::geom_line(ggplot2::aes(x = date, y = cases), color = "#254B73") +
+  ggplot2::geom_point(ggplot2::aes(x = date, y = cases, color = alert), show.legend = FALSE) +
+  ggplot2::scale_color_manual(
     values = c("transparent", "#A50026", "transparent", "transparent")
   ) +
-  scale_y_continuous(
+  ggplot2::scale_y_continuous(
     limits = c(0, NA),
     expand = expansion(c(0, 0.2)),
     labels = scales::comma,
@@ -276,25 +276,25 @@ ggplot(data = df_farr_modified) +
     date_breaks = "6 month",
     name = "Date"
   ) +
-  theme_classic() +
-  theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5),
+  ggplot2::theme_classic() +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5),
     legend.position = "bottom",
     axis.ticks.length = unit(0.25, "cm"),
     legend.background = element_rect(color = "black", linewidth = 0.1)
   )
 
-ggplot(data = df_farr_modified) +
-  geom_line(aes(x = date, y = cases, color = "Observed")) +
-  geom_line(aes(x = date, y = upper, color = "Threshold"), linewidth = 0.3) +
-  geom_point(data = subset(df_farr_modified, alert == "red"), aes(x = date, y = cases), color = "#A50026") +
-  geom_vline(xintercept = as.Date("2021-01-17"), linewidth = 0.2) +
+ggplot2::ggplot(data = df_farr_modified) +
+  ggplot2::geom_line(ggplot2::aes(x = date, y = cases, color = "Observed")) +
+  ggplot2::geom_line(ggplot2::aes(x = date, y = upper, color = "Threshold"), linewidth = 0.3) +
+  ggplot2::geom_point(data = subset(df_farr_modified, alert == "red"), ggplot2::aes(x = date, y = cases), color = "#A50026") +
+  ggplot2::geom_vline(xintercept = as.Date("2021-01-17"), linewidth = 0.2) +
   annotate(geom = "text", x = as.Date("2022-01-01"), y = 65, label = "Observations with\nSufficient Baseline Data") +
-  scale_color_manual(
+  ggplot2::scale_color_manual(
     values = c("#1A476F", "#A50026"),
     name = "Series"
   ) +
-  scale_y_continuous(
+  ggplot2::scale_y_continuous(
     limits = c(0, NA),
     expand = expansion(c(0, 0.2)),
     labels = scales::comma,
@@ -305,8 +305,8 @@ ggplot(data = df_farr_modified) +
     date_labels = "%Y",
     name = "Date"
   ) +
-  theme_classic() +
-  theme(
+  ggplot2::theme_classic() +
+  ggplot2::theme(
     legend.position = "bottom",
     axis.ticks.length = unit(0.25, "cm"),
     legend.background = element_rect(color = "black", linewidth = 0.1)
@@ -326,7 +326,7 @@ The example below applies the Negative Binomial Regression detector to our synth
 
 ```{r alert_negative_binomial_regression}
 synth_ts1 <- simulated_data %>%
-  filter(id == "Scenario #1")
+  dplyr::filter(id == "Scenario #1")
 
 df_nbinom <- alert_nbinom(
   synth_ts1,
@@ -336,20 +336,20 @@ df_nbinom <- alert_nbinom(
 )
 ```
 
-Let’s visualize the time series with the detected anomalies:
+Letâ€™s visualize the time series with the detected anomalies:
 
 ```{r alert_negative_binomial_regression_viz}
-ggplot(data = df_nbinom) +
-  geom_line(aes(x = date, y = cases, color = "Observed")) +
-  geom_line(aes(x = date, y = threshold, color = "Threshold"), linewidth = 0.3) +
-  geom_point(data = subset(df_nbinom, alarm), aes(x = date, y = cases), color = "#A50026") +
-  geom_vline(xintercept = as.Date("2021-12-26"), linewidth = 0.2) +
+ggplot2::ggplot(data = df_nbinom) +
+  ggplot2::geom_line(ggplot2::aes(x = date, y = cases, color = "Observed")) +
+  ggplot2::geom_line(ggplot2::aes(x = date, y = threshold, color = "Threshold"), linewidth = 0.3) +
+  ggplot2::geom_point(data = subset(df_nbinom, alarm), ggplot2::aes(x = date, y = cases), color = "#A50026") +
+  ggplot2::geom_vline(xintercept = as.Date("2021-12-26"), linewidth = 0.2) +
   annotate(geom = "text", x = as.Date("2019-12-01"), y = 60, label = "Baseline Data") +
-  scale_color_manual(
+  ggplot2::scale_color_manual(
     values = c("#1A476F", "#A50026"),
     name = "Series"
   ) +
-  scale_y_continuous(
+  ggplot2::scale_y_continuous(
     limits = c(0, NA),
     expand = expansion(c(0, 0.2)),
     labels = scales::comma,
@@ -360,8 +360,8 @@ ggplot(data = df_nbinom) +
     date_labels = "%Y",
     name = "Date"
   ) +
-  theme_classic() +
-  theme(
+  ggplot2::theme_classic() +
+  ggplot2::theme(
     legend.position = "bottom",
     axis.ticks.length = unit(0.25, "cm"),
     legend.background = element_rect(color = "black", linewidth = 0.1)
@@ -390,20 +390,20 @@ df_serfling <- alert_serfling(
 )
 ```
 
-Let’s visualize the time series with the detected anomalies:
+Letâ€™s visualize the time series with the detected anomalies:
 
 ```{r alert_serfling_detector_viz}
-ggplot(data = df_serfling) +
-  geom_line(aes(x = date, y = cases, color = "Observed")) +
-  geom_line(aes(x = date, y = threshold, color = "Threshold"), linewidth = 0.3) +
-  geom_point(data = subset(df_serfling, alarm), aes(x = date, y = cases), color = "#A50026") +
-  geom_vline(xintercept = as.Date("2021-12-26"), linewidth = 0.2) +
+ggplot2::ggplot(data = df_serfling) +
+  ggplot2::geom_line(ggplot2::aes(x = date, y = cases, color = "Observed")) +
+  ggplot2::geom_line(ggplot2::aes(x = date, y = threshold, color = "Threshold"), linewidth = 0.3) +
+  ggplot2::geom_point(data = subset(df_serfling, alarm), ggplot2::aes(x = date, y = cases), color = "#A50026") +
+  ggplot2::geom_vline(xintercept = as.Date("2021-12-26"), linewidth = 0.2) +
   annotate(geom = "text", x = as.Date("2019-12-01"), y = 60, label = "Baseline Data") +
-  scale_color_manual(
+  ggplot2::scale_color_manual(
     values = c("#1A476F", "#A50026"),
     name = "Series"
   ) +
-  scale_y_continuous(
+  ggplot2::scale_y_continuous(
     limits = c(0, NA),
     expand = expansion(c(0, 0.2)),
     labels = scales::comma,
@@ -414,8 +414,8 @@ ggplot(data = df_serfling) +
     date_labels = "%Y",
     name = "Date"
   ) +
-  theme_classic() +
-  theme(
+  ggplot2::theme_classic() +
+  ggplot2::theme(
     legend.position = "bottom",
     axis.ticks.length = unit(0.25, "cm"),
     legend.background = element_rect(color = "black", linewidth = 0.1)
@@ -440,21 +440,21 @@ If there are fewer than 10 encounters/counts in the baseline period, a model is 
 data_trend <- classify_trend(df_hhs, data_count = dataCount, all_count = allCount)
 ```
 
-Let’s visualize HHS Region 4 trends with the color bar at the bottom representing the trend classification of each day over time:
+Letâ€™s visualize HHS Region 4 trends with the color bar at the bottom representing the trend classification of each day over time:
 
 ```{r classify_trend_viz}
 # Filter the dataset
 df_trend_region <- data_trend %>%
-  filter(hospitaldhhsregion_display == "Region 4") %>%
-  mutate(proportion = (data_count / all_count))
+  dplyr::filter(hospitaldhhsregion_display == "Region 4") %>%
+  dplyr::mutate(proportion = (data_count / all_count))
 
 # Defining a color palette
 pal <- c("#FF0000", "#1D8AFF", "#FFF70E", "grey90")
 
 # Plot trend
-ggplot(data = df_trend_region) +
-  geom_line(aes(x = t, y = proportion), color = "#1A476F") +
-  geom_xsidetile(aes(xfill = trend_classification, x = t, y = "Trend")) +
+ggplot2::ggplot(data = df_trend_region) +
+  ggplot2::geom_line(ggplot2::aes(x = t, y = proportion), color = "#1A476F") +
+  ggside::geom_xsidetile(ggplot2::aes(xfill = trend_classification, x = t, y = "Trend")) +
   scale_xfill_manual(
     values = c("#D7191C", "#2C7BB6", "#FFFFBF", "#DDDDDD"),
     drop = FALSE,
@@ -466,18 +466,20 @@ ggplot(data = df_trend_region) +
     date_breaks = "1 week",
     name = "Date"
   ) +
-  scale_y_continuous(
+  ggplot2::scale_y_continuous(
     limits = c(0, NA),
     expand = expansion(c(0, 0.2)),
     labels = scales::percent,
     name = "Percent"
   ) +
-  theme_classic() +
-  theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5),
+  ggplot2::theme_classic() +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5),
     legend.position = "bottom",
     axis.ticks.length = unit(0.25, "cm"),
     legend.background = element_rect(color = "black", linewidth = 0.1),
     ggside.panel.scale.x = 0.05
   )
 ```
+
+

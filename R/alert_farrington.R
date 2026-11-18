@@ -649,7 +649,7 @@ farrington_modified <- function(df, t = date, y = count,
 #' &userId=2362&aqtTarget=TimeSeries"
 #'
 #'
-#' url <- url |> gsub("\n", "", x=_)
+#' url <- url |> gsub("\n", "", x = _)
 #'
 #' api_data <- get_api_data(url)
 #'
@@ -740,7 +740,7 @@ alert_farrington <- function(df, t = date, y = count, B = 4, g = 27,
   # Ensure that dates are in standard format
   format_dates <- try(as.Date(date_check), silent = TRUE)
 
-  if (class(format_dates) == "try-error") {
+  if(inherits(format_dates, "try-error")) {
     cli::cli_abort("Date argument {.var t} is not in a standard unambiguous format.
                    Dates must be in {.code %Y-%m-%d} format.")
   }

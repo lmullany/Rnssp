@@ -104,29 +104,29 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
         )
       }
 
-      file_name <- unzip(temp_file, list = TRUE) %>%
-        dplyr::filter(grepl("icd10cm_codes_\\d{4}\\.txt", Name)) %>%
+      file_name <- unzip(temp_file, list = TRUE) |>
+        dplyr::filter(grepl("icd10cm_codes_\\d{4}\\.txt", Name)) |>
         dplyr::pull(Name)
 
       unzip(temp_file, files = file_name, exdir = temp_dir, overwrite = TRUE)
 
       file_path <- file.path(temp_dir, file_name)
 
-      icd_dictionary <- data.table::fread(file_path, sep = "\t", header = FALSE) %>%
-        data.table::setnames(old = "V1", new = "code_combo") %>%
-        tibble::as_tibble() %>%
+      icd_dictionary <- data.table::fread(file_path, sep = "\t", header = FALSE) |>
+        data.table::setnames(old = "V1", new = "code_combo") |>
+        tibble::as_tibble() |>
         dplyr::mutate(
           code_combo = stringr::str_squish(code_combo),
           code_combo = sub(" ", "_", code_combo)
-        ) %>%
-        tidyr::separate(code_combo, c("code", "description"), sep = "_") %>%
+        ) |>
+        tidyr::separate(code_combo, c("code", "description"), sep = "_") |>
         dplyr::mutate(
           code = stringr::str_squish(code),
           description = stringr::str_squish(description),
           published_year = fy_year - 1,
           fy_update_year = fy_year,
           version = "ICD-10"
-        ) %>%
+        ) |>
         dplyr::relocate(version)
     } else {
       fy_year <- year + 1
@@ -151,29 +151,29 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
         )
       }
 
-      file_name <- unzip(temp_file, list = TRUE) %>%
-        dplyr::filter(grepl("icd10cm_codes_\\d{4}\\.txt", Name)) %>%
+      file_name <- unzip(temp_file, list = TRUE) |>
+        dplyr::filter(grepl("icd10cm_codes_\\d{4}\\.txt", Name)) |>
         dplyr::pull(Name)
 
       unzip(temp_file, files = file_name, exdir = temp_dir, overwrite = TRUE)
 
       file_path <- file.path(temp_dir, file_name)
 
-      icd_dictionary <- data.table::fread(file_path, sep = "\t", header = FALSE) %>%
-        data.table::setnames(old = "V1", new = "code_combo") %>%
-        tibble::as_tibble() %>%
+      icd_dictionary <- data.table::fread(file_path, sep = "\t", header = FALSE) |>
+        data.table::setnames(old = "V1", new = "code_combo") |>
+        tibble::as_tibble() |>
         dplyr::mutate(
           code_combo = stringr::str_squish(code_combo),
           code_combo = sub(" ", "_", code_combo)
-        ) %>%
-        tidyr::separate(code_combo, c("code", "description"), sep = "_") %>%
+        ) |>
+        tidyr::separate(code_combo, c("code", "description"), sep = "_") |>
         dplyr::mutate(
           code = stringr::str_squish(code),
           description = stringr::str_squish(description),
           published_year = fy_year - 1,
           fy_update_year = fy_year,
           version = "ICD-10"
-        ) %>%
+        ) |>
         dplyr::relocate(version)
     }
 
@@ -193,8 +193,8 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
                      CMS website is currently unresponsive.")
     }
 
-    file_name <- unzip(temp_file, list = TRUE) %>%
-      dplyr::filter(Name == "CMS32_DESC_LONG_DX.txt") %>%
+    file_name <- unzip(temp_file, list = TRUE) |>
+      dplyr::filter(Name == "CMS32_DESC_LONG_DX.txt") |>
       dplyr::pull(Name)
 
     unzip(temp_file, files = file_name, exdir = temp_dir, overwrite = TRUE)
@@ -203,24 +203,23 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
 
     file_year <- 2014
 
-    icd_dictionary <- data.table::fread(file_path, sep = "\t", header = FALSE) %>%
-      data.table::setnames(old = "V1", new = "code_combo") %>%
-      tibble::as_tibble() %>%
+    icd_dictionary <- data.table::fread(file_path, sep = "\t", header = FALSE) |>
+      data.table::setnames(old = "V1", new = "code_combo") |>
+      tibble::as_tibble() |>
       dplyr::mutate(
         code_combo = stringr::str_squish(code_combo),
         code_combo = sub(" ", "_", code_combo)
-      ) %>%
-      tidyr::separate(code_combo, c("code", "description"), sep = "_") %>%
+      ) |>
+      tidyr::separate(code_combo, c("code", "description"), sep = "_") |>
       dplyr::mutate(
         code = stringr::str_squish(code),
         description = stringr::str_squish(description),
         published_year = file_year,
         fy_update_year = "Legacy ICD-9 codes",
         version = "ICD-9"
-      ) %>%
+      ) |>
       dplyr::relocate(version)
 
     return(icd_dictionary)
   }
 }
-

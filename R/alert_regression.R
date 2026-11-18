@@ -215,7 +215,7 @@ adaptive_regression <- function(df, t, y, B, g) {
 #' &stratVal=&multiStratVal=geography&graphOnly=true&numSeries=0&graphOptions=multipleSmall
 #' &seriesPerYear=false&startMonth=January&nonZeroComposite=false"
 #'
-#' url <- url |> gsub("\n", "", x=_)
+#' url <- url |> gsub("\n", "", x = _)
 #'
 #' api_data <- get_api_data(url)
 #'
