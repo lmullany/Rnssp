@@ -98,7 +98,7 @@ classify_trend <- function(df, t = date, data_count = dataCount, all_count = all
         .x = tibble::tibble(t, data_count, all_count),
         .f = function(.x) {
           if (sum(.x$data_count) > 10) {
-            glm(cbind(data_count, all_count - data_count) ~ t, family = "binomial", data = .x) |>
+            stats::glm(cbind(data_count, all_count - data_count) ~ t, family = "binomial", data = .x) |>
               broom::tidy() |>
               dplyr::filter(term == "t") |>
               dplyr::select(statistic, p.value)

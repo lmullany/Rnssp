@@ -63,7 +63,7 @@ add_rmd_template <- function(template = NULL, pkg = "Rnssp", restart = TRUE, ver
       {
         filtre <- matrix(c("Template", ".zip"), 1, 2, byrow = TRUE)
         if (interactive() && .Platform$OS.type == "windows") {
-          zipfile <- choose.files(filters = Filters[c("zip"), ])
+          zipfile <- utils::choose.files(filters = utils::Filters[c("zip"), ])
         } else if (interactive() && .Platform$OS.type == "unix") {
           zipfile <- file.choose()
         } else if (!interactive()) {
@@ -73,13 +73,13 @@ add_rmd_template <- function(template = NULL, pkg = "Rnssp", restart = TRUE, ver
           cli::cli_abort("File provided is not a {.field .zip} file")
         }
         template_folder <- unlist(strsplit(basename(zipfile), "[.]"))[1]
-        zipcontent <- unzip(zipfile, list = TRUE)
+        zipcontent <- utils::unzip(zipfile, list = TRUE)
         stopifnot(exprs = {
           file.path(template_folder, "template.yaml") %in% zipcontent$Name
           file.path(template_folder, "skeleton", "skeleton.Rmd") %in% zipcontent$Name
         })
         exDir <- file.path(system.file(package = pkg), "rmarkdown/templates")
-        unzip(zipfile, exdir = exDir)
+        utils::unzip(zipfile, exdir = exDir)
         cli::cli({
           cli::cli_alert_success("Template {.field {template_folder}} has been successfully added in {.file {file.path(exDir, template_folder)}}.")
           cli::cli_alert_info("Please, restart your R session ({.kbd CTRL+SHIFT+F10} or {.kbd CMD+SHIFT+F10}) to update the template list!")
@@ -98,14 +98,14 @@ add_rmd_template <- function(template = NULL, pkg = "Rnssp", restart = TRUE, ver
     }
     temp_dir <- tempdir()
     zipfile <- file.path(temp_dir, paste0(template, ".zip"))
-    download.file(file.path(repoURL, "zip", paste0(template, ".zip")),
+    utils::download.file(file.path(repoURL, "zip", paste0(template, ".zip")),
       destfile = zipfile
     )
     if (!file.exists(zipfile)) {
       cli::cli_abort("Download of {.field {template}.zip} was unsuccessful!")
     }
     template_folder <- unlist(strsplit(basename(zipfile), "[.]"))[1]
-    zipcontent <- unzip(zipfile, list = TRUE)
+    zipcontent <- utils::unzip(zipfile, list = TRUE)
     stopifnot(exprs = {
       file.path(template_folder, "template.yaml") %in% zipcontent$Name
       file.path(template_folder, "skeleton", "skeleton.Rmd") %in% zipcontent$Name
@@ -114,7 +114,7 @@ add_rmd_template <- function(template = NULL, pkg = "Rnssp", restart = TRUE, ver
     if (!dir.exists(exDir)) {
       cli::cli_abort("Package {.pkg Rnssp} is not installed!")
     }
-    unzip(zipfile, exdir = exDir)
+    utils::unzip(zipfile, exdir = exDir)
     cli::cli({
       cli::cli_alert_success("Template {.field {template_folder}} has been successfully added in {.file {file.path(exDir, template_folder)}}.")
     })
@@ -283,7 +283,7 @@ Rnssp_vignettes <- function(topic = NULL) {
   if (!is.null(topic)) {
     url <- file.path(base_url, paste0(topic, ".html"))
   }
-  browseURL(url)
+  utils::browseURL(url)
 }
 
 

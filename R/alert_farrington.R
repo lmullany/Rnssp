@@ -64,12 +64,12 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
     base_counts <- y_obs[idx]
 
     mod <- suppressWarnings(
-      glm(base_counts ~ 1 + base_dates, family = quasipoisson(link = "log"))
+      stats::glm(base_counts ~ 1 + base_dates, family = stats::quasipoisson(link = "log"))
     )
 
     if (!mod$converged) {
       mod <- suppressWarnings(
-        glm(base_counts ~ 1, family = quasipoisson(link = "log"))
+        stats::glm(base_counts ~ 1, family = stats::quasipoisson(link = "log"))
       )
 
       include_time <- FALSE
@@ -94,7 +94,7 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
     y_observed <- as.numeric(mod$y)
     y_fit <- as.numeric(mod$fitted.values)
     phi <- max(summary(mod)$dispersion, 1)
-    diag <- as.numeric(hatvalues(mod))
+    diag <- as.numeric(stats::hatvalues(mod))
 
     ambscombe_resid <- ((3 / 2) * (y_observed^(2 / 3) * (y_fit^(-1 / 6)) -
       sqrt(y_fit))) / (sqrt(phi * (1 - diag)))
@@ -104,8 +104,8 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
     omega <- dplyr::if_else(ambscombe_resid > 1, gamma / (ambscombe_resid^2), gamma)
 
     mod_weighted <- suppressWarnings(
-      glm(as.formula(mod_formula),
-        family = quasipoisson(link = "log"),
+      stats::glm(stats::as.formula(mod_formula),
+        family = stats::quasipoisson(link = "log"),
         weights = omega
       )
     )
@@ -124,7 +124,7 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
 
     pred_week_time <- as.numeric((current_date - min_date)) / 7
 
-    pred <- predict.glm(
+    pred <- stats::predict.glm(
       mod_weighted,
       newdata = data.frame(
         base_dates = pred_week_time,
@@ -149,7 +149,7 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
 
     if (!trend) {
       mod <- suppressWarnings(
-        glm(base_counts ~ 1, family = quasipoisson(link = "log"))
+      stats::glm(base_counts ~ 1, family = stats::quasipoisson(link = "log"))
       )
 
       if (!mod$converged) {
@@ -160,7 +160,7 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
         y_observed <- as.numeric(mod$y)
         y_fit <- as.numeric(mod$fitted.values)
         phi <- max(summary(mod)$dispersion, 1)
-        diag <- as.numeric(hatvalues(mod))
+        diag <- as.numeric(stats::hatvalues(mod))
 
         ambscombe_resid <- ((3 / 2) * (y_observed^(2 / 3) * (y_fit^(-1 / 6)) -
           sqrt(y_fit))) / (sqrt(phi * (1 - diag)))
@@ -170,8 +170,8 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
         omega <- dplyr::if_else(ambscombe_resid > 1, gamma / (ambscombe_resid^2), gamma)
 
         mod_weighted <- suppressWarnings(
-          glm(as.formula(mod_formula),
-            family = quasipoisson(link = "log"),
+          stats::glm(stats::as.formula(mod_formula),
+            family = stats::quasipoisson(link = "log"),
             weights = omega
           )
         )
@@ -183,7 +183,7 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
         mod_weighted$week_time <- base_dates
         mod_weighted$data_count <- base_counts
 
-        pred <- predict.glm(
+        pred <- stats::predict.glm(
           mod_weighted,
           newdata = data.frame(
             base_dates = pred_week_time,
@@ -208,7 +208,7 @@ farrington_original <- function(df, t = date, y = count, B = 4, w = 3) {
     tau <- phi_weighted + ((se_fit^2) / predicted[i])
     se_pred <- sqrt((4 / 9) * predicted[i]^(1 / 3) * tau)
 
-    upper[i] <- max(0, (predicted[i]^(2 / 3) + qnorm(0.95) *
+    upper[i] <- max(0, (predicted[i]^(2 / 3) + stats::qnorm(0.95) *
       se_pred)^(3 / 2), na.rm = TRUE)
 
     alert_score[i] <- dplyr::if_else(
@@ -354,14 +354,15 @@ farrington_modified <- function(df, t = date, y = count,
     base_counts <- y_obs[idx]
 
     mod <- suppressWarnings(
-      glm(base_counts ~ 1 + base_dates + fct_levels,
-        family = quasipoisson(link = "log")
+      stats::glm(base_counts ~ 1 + base_dates + fct_levels,
+        family = stats::quasipoisson(link = "log")
       )
     )
 
     if (!mod$converged) {
       mod <- suppressWarnings(
-        glm(base_counts ~ 1 + fct_levels, family = quasipoisson(link = "log"))
+        stats::glm(base_counts ~ 1 + fct_levels,
+                   family = stats::quasipoisson(link = "log"))
       )
 
       include_time <- FALSE
@@ -386,7 +387,7 @@ farrington_modified <- function(df, t = date, y = count,
     y_observed <- as.numeric(mod$y)
     y_fit <- as.numeric(mod$fitted.values)
     phi <- max(summary(mod)$dispersion, 1)
-    diag <- as.numeric(hatvalues(mod))
+    diag <- as.numeric(stats::hatvalues(mod))
 
     ambscombe_resid <- ((3 / 2) * (y_observed^(2 / 3) * (y_fit^(-1 / 6)) -
       sqrt(y_fit))) / (sqrt(phi * (1 - diag)))
@@ -396,8 +397,8 @@ farrington_modified <- function(df, t = date, y = count,
     omega <- dplyr::if_else(ambscombe_resid > 2.58, gamma / (ambscombe_resid^2), gamma)
 
     mod_weighted <- suppressWarnings(
-      glm(as.formula(mod_formula),
-        family = quasipoisson(link = "log"),
+      stats::glm(stats::as.formula(mod_formula),
+        family = stats::quasipoisson(link = "log"),
         weights = omega
       )
     )
@@ -416,7 +417,7 @@ farrington_modified <- function(df, t = date, y = count,
 
     pred_week_time <- as.numeric((current_date - min_date)) / 7
 
-    pred <- predict.glm(
+    pred <- stats::predict.glm(
       mod_weighted,
       newdata = data.frame(
         base_dates = pred_week_time,
@@ -442,7 +443,8 @@ farrington_modified <- function(df, t = date, y = count,
 
     if (!trend) {
       mod <- suppressWarnings(
-        glm(base_counts ~ 1 + fct_levels, family = quasipoisson(link = "log"))
+        stats::glm(base_counts ~ 1 + fct_levels,
+                   family = stats::quasipoisson(link = "log"))
       )
 
       if (!mod$converged) {
@@ -453,7 +455,7 @@ farrington_modified <- function(df, t = date, y = count,
         y_observed <- as.numeric(mod$y)
         y_fit <- as.numeric(mod$fitted.values)
         phi <- max(summary(mod)$dispersion, 1)
-        diag <- as.numeric(hatvalues(mod))
+          diag <- as.numeric(stats::hatvalues(mod))
 
         ambscombe_resid <- (
           (3 / 2) * (y_observed^(2 / 3) * (y_fit^(-1 / 6)) - sqrt(y_fit))) /
@@ -467,8 +469,8 @@ farrington_modified <- function(df, t = date, y = count,
         )
 
         mod_weighted <- suppressWarnings(
-          glm(as.formula(mod_formula),
-            family = quasipoisson(link = "log"),
+          stats::glm(stats::as.formula(mod_formula),
+            family = stats::quasipoisson(link = "log"),
             weights = omega
           )
         )
@@ -480,7 +482,7 @@ farrington_modified <- function(df, t = date, y = count,
         mod_weighted$week_time <- base_dates
         mod_weighted$data_count <- base_counts
 
-        pred <- predict.glm(
+          pred <- stats::predict.glm(
           mod_weighted,
           newdata = data.frame(
             base_dates = pred_week_time,
@@ -495,7 +497,7 @@ farrington_modified <- function(df, t = date, y = count,
         include_time_term[i] <- FALSE
       }
     } else {
-      pred <- predict.glm(
+      pred <- stats::predict.glm(
         mod_weighted,
         newdata = data.frame(
           base_dates = pred_week_time,
@@ -522,9 +524,9 @@ farrington_modified <- function(df, t = date, y = count,
     upper[i] <- if (mu_q == Inf) {
       NA_real_
     } else if (phi_weighted > 1) {
-      qnbinom(p = 0.95, mu_q / (phi_weighted - 1), 1 / phi_weighted)
+      stats::qnbinom(p = 0.95, mu_q / (phi_weighted - 1), 1 / phi_weighted)
     } else {
-      qpois(0.95, mu_q)
+      stats::qpois(0.95, mu_q)
     }
 
     alert_score[i] <- dplyr::if_else(

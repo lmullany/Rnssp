@@ -50,19 +50,19 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
 
   baseline_fit <- dplyr::bind_cols(
     baseline_data,
-    predict(baseline_model, simulate_pi = FALSE, se.fit = TRUE) |>
+    stats::predict(baseline_model, simulate_pi = FALSE, se.fit = TRUE) |>
       as.data.frame() |>
       dplyr::select(fit_link = fit, se_link = se.fit) |>
       dplyr::mutate(
         estimate = inv_link(fit_link),
-        upper_ci = inv_link(fit_link + qt(1 - 0.05, df_residual) * se_link),
-        threshold = qnbinom(1 - 0.05, mu = upper_ci, size = theta)
+        upper_ci = inv_link(fit_link + stats::qt(1 - 0.05, df_residual) * se_link),
+        threshold = stats::qnbinom(1 - 0.05, mu = upper_ci, size = theta)
       )
   )
 
   predict_fit <- dplyr::bind_cols(
     predict_data,
-    predict(baseline_model,
+    stats::predict(baseline_model,
       newdata = predict_data, simulate_pi = FALSE,
       se.fit = TRUE, type = "link"
     ) |>
@@ -70,8 +70,8 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
       dplyr::select(fit_link = fit, se_link = se.fit) |>
       dplyr::mutate(
         estimate = inv_link(fit_link),
-        upper_ci = inv_link(fit_link + qt(1 - 0.05, df_residual) * se_link),
-        threshold = qnbinom(1 - 0.05, mu = upper_ci, size = theta)
+        upper_ci = inv_link(fit_link + stats::qt(1 - 0.05, df_residual) * se_link),
+        threshold = stats::qnbinom(1 - 0.05, mu = upper_ci, size = theta)
       )
   )
 
@@ -86,19 +86,19 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
 
     baseline_fit <- dplyr::bind_cols(
       baseline_data,
-      predict(baseline_model, simulate_pi = FALSE, se.fit = TRUE) |>
+      stats::predict(baseline_model, simulate_pi = FALSE, se.fit = TRUE) |>
         as.data.frame() |>
         dplyr::select(fit_link = fit, se_link = se.fit) |>
         dplyr::mutate(
           estimate = inv_link(fit_link),
-          upper_ci = inv_link(fit_link + qt(1 - 0.05, df_residual) * se_link),
-          threshold = qnbinom(1 - 0.05, mu = upper_ci, size = theta)
+          upper_ci = inv_link(fit_link + stats::qt(1 - 0.05, df_residual) * se_link),
+          threshold = stats::qnbinom(1 - 0.05, mu = upper_ci, size = theta)
         )
     )
 
     predict_fit <- dplyr::bind_cols(
       predict_data,
-      predict(baseline_model,
+      stats::predict(baseline_model,
         newdata = predict_data, simulate_pi = FALSE,
         se.fit = TRUE, type = "link"
       ) |>
@@ -106,8 +106,8 @@ nb_model <- function(df, t, y, baseline_end, include_time) {
         dplyr::select(fit_link = fit, se_link = se.fit) |>
         dplyr::mutate(
           estimate = inv_link(fit_link),
-          upper_ci = inv_link(fit_link + qt(1 - 0.05, df_residual) * se_link),
-          threshold = qnbinom(1 - 0.05, mu = upper_ci, size = theta)
+          upper_ci = inv_link(fit_link + stats::qt(1 - 0.05, df_residual) * se_link),
+          threshold = stats::qnbinom(1 - 0.05, mu = upper_ci, size = theta)
         )
     )
   }

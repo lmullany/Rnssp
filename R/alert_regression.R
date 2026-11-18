@@ -27,8 +27,8 @@ adaptive_regression <- function(df, t, y, B, g) {
   max_baseline <- B
   df_range <- 1:(B - min_df)
 
-  ucl_alert <- round(qt(1 - 0.01, df = df_range), 5)
-  ucl_warning <- round(qt(1 - 0.05, df = df_range), 5)
+  ucl_alert <- round(stats::qt(1 - 0.01, df = df_range), 5)
+  ucl_warning <- round(stats::qt(1 - 0.05, df = df_range), 5)
 
   # Bound standard error of regression
   min_sigma <- 0.01 / ucl_warning
@@ -91,7 +91,7 @@ adaptive_regression <- function(df, t, y, B, g) {
     )
 
     # Fit regression model with lm.fit() for efficiency
-    lm_fit <- lm.fit(x = cbind(1, X), y = baseline_obs)
+  lm_fit <- stats::lm.fit(x = cbind(1, X), y = baseline_obs)
 
     # Extract model components
     beta <- lm_fit$coefficients
@@ -126,7 +126,7 @@ adaptive_regression <- function(df, t, y, B, g) {
     test_stat[i] <- (y_obs[i] - expected[i]) / sigma[i]
 
     # Calculate p-value
-    p_val[i] <- 1 - pt(test_stat[i], df = n_df)
+  p_val[i] <- 1 - stats::pt(test_stat[i], df = n_df)
   }
 
   tibble::tibble(

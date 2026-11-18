@@ -5,7 +5,7 @@
 #' @keywords internal
 #'
 rnssp_manual <- function() {
-  browseURL("https://cdcgov.github.io/Rnssp")
+  utils::browseURL("https://cdcgov.github.io/Rnssp")
 }
 
 #' Rnssp Templates Documentation
@@ -15,5 +15,5 @@ rnssp_manual <- function() {
 #' @keywords internal
 #'
 rnssp_templates_manual <- function() {
-  browseURL("https://cdcgov.github.io/Rnssp-rmd-templates")
+  utils::browseURL("https://cdcgov.github.io/Rnssp-rmd-templates")
 }

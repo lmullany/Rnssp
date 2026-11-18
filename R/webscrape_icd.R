@@ -90,7 +90,7 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
       temp_file <- tempfile(tmpdir = temp_dir, fileext = ".zip")
 
       download_exit_status <- try(
-        download.file(cms_url, temp_file, quiet = quiet)
+        utils::download.file(cms_url, temp_file, quiet = quiet)
       )
 
       if (all(class(download_exit_status) == "try-error")) {
@@ -104,11 +104,11 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
         )
       }
 
-      file_name <- unzip(temp_file, list = TRUE) |>
+      file_name <- utils::unzip(temp_file, list = TRUE) |>
         dplyr::filter(grepl("icd10cm_codes_\\d{4}\\.txt", Name)) |>
         dplyr::pull(Name)
 
-      unzip(temp_file, files = file_name, exdir = temp_dir, overwrite = TRUE)
+      utils::unzip(temp_file, files = file_name, exdir = temp_dir, overwrite = TRUE)
 
       file_path <- file.path(temp_dir, file_name)
 
@@ -137,7 +137,7 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
       temp_file <- tempfile(tmpdir = temp_dir, fileext = ".zip")
 
       download_exit_status <- try(
-        download.file(cms_url, temp_file, quiet = quiet)
+        utils::download.file(cms_url, temp_file, quiet = quiet)
       )
 
       if (all(class(download_exit_status) == "try-error")) {
@@ -151,11 +151,11 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
         )
       }
 
-      file_name <- unzip(temp_file, list = TRUE) |>
+      file_name <- utils::unzip(temp_file, list = TRUE) |>
         dplyr::filter(grepl("icd10cm_codes_\\d{4}\\.txt", Name)) |>
         dplyr::pull(Name)
 
-      unzip(temp_file, files = file_name, exdir = temp_dir, overwrite = TRUE)
+      utils::unzip(temp_file, files = file_name, exdir = temp_dir, overwrite = TRUE)
 
       file_path <- file.path(temp_dir, file_name)
 
@@ -185,7 +185,7 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
     temp_file <- tempfile(tmpdir = temp_dir, fileext = ".zip")
 
     download_exit_status <- try(
-      download.file(cms_url, temp_file, quiet = quiet)
+      utils::download.file(cms_url, temp_file, quiet = quiet)
     )
 
     if (all(class(download_exit_status) == "try-error")) {
@@ -193,11 +193,11 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
                      CMS website is currently unresponsive.")
     }
 
-    file_name <- unzip(temp_file, list = TRUE) |>
+    file_name <- utils::unzip(temp_file, list = TRUE) |>
       dplyr::filter(Name == "CMS32_DESC_LONG_DX.txt") |>
       dplyr::pull(Name)
 
-    unzip(temp_file, files = file_name, exdir = temp_dir, overwrite = TRUE)
+    utils::unzip(temp_file, files = file_name, exdir = temp_dir, overwrite = TRUE)
 
     file_path <- file.path(temp_dir, file_name)
 

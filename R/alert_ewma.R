@@ -40,7 +40,7 @@ ewma_loop <- function(df, t, y, B, g, w1, w2) {
 
   # Scaling for percentage time series with values < 1
   if (max(y_initial) < 1 & length(y_initial[y_initial > 0]) >= 1) {
-    y <- y_initial / median(y_initial[y_initial > 0])
+    y <- y_initial / stats::median(y_initial[y_initial > 0])
   } else if (sum(y_initial) == 0) {
     y <- y_initial
   } else {
@@ -91,7 +91,7 @@ ewma_loop <- function(df, t, y, B, g, w1, w2) {
     y_baseline <- y[ndx_baseline]
 
     expected[i] <- mean(y_baseline)
-    sigma <- sd(y_baseline)
+    sigma <- stats::sd(y_baseline)
 
     sigma_correction1 <- sqrt(
       (w1 / (2 - w1)) + (1 / length(ndx_baseline)) - 2 * (1 - w1)^(g + 1) *
@@ -102,8 +102,8 @@ ewma_loop <- function(df, t, y, B, g, w1, w2) {
         ((1 - (1 - w2)^length(ndx_baseline)) / length(ndx_baseline))
     )
 
-    ucl_alert <- round(qt(1 - 0.01, df = n_df), 5)
-    ucl_warning <- round(qt(1 - 0.05, df = n_df), 5)
+    ucl_alert <- round(stats::qt(1 - 0.01, df = n_df), 5)
+    ucl_warning <- round(stats::qt(1 - 0.05, df = n_df), 5)
 
     min_sigma1 <- (w1 / ucl_warning) * (0.01 + 0.05 * (1 - w1)^2)
     min_sigma2 <- (w2 / ucl_warning) * (0.01 + 0.05 * (1 - w2)^2)
@@ -133,8 +133,8 @@ ewma_loop <- function(df, t, y, B, g, w1, w2) {
     }
 
     # Compute p-values
-    pval1[i] <- 1 - pt(test_stat1[i], df = n_df)
-    pval2[i] <- 1 - pt(test_stat2[i], df = n_df)
+    pval1[i] <- 1 - stats::pt(test_stat1[i], df = n_df)
+    pval2[i] <- 1 - stats::pt(test_stat2[i], df = n_df)
 
     # Determine minimum p-value
     if (pval1[i] < pval2[i]) {

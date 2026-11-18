@@ -34,8 +34,8 @@ serfling_model <- function(df, t, y, baseline_end) {
     dplyr::filter(split == "Baseline Period") |>
     dplyr::filter(!epidemic_period)
 
-  baseline_model <- lm(y ~ obs + cos + sin, data = baseline_data)
-  predict(baseline_model,
+  baseline_model <- stats::lm(y ~ obs + cos + sin, data = baseline_data)
+  stats::predict(baseline_model,
     newdata = input_data, se.fit = TRUE,
     interval = "prediction", level = 0.90
   ) |>
