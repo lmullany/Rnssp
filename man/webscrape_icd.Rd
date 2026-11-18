@@ -37,6 +37,7 @@ enable successful joining.
 }
 \examples{
 
+\dontrun{
 # Example 1
 icd9_2014 <- webscrape_icd(icd_version = "ICD9")
 head(icd9_2014)
@@ -48,6 +49,7 @@ head(icd10_2025)
 # Example 3
 icd10_2026 <- webscrape_icd(icd_version = "ICD10", year = 2026)
 head(icd10_2026)
+}
 
 }
 \references{

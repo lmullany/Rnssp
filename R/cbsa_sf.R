@@ -19,5 +19,5 @@
 #' library(Rnssp)
 #' data("cbsa_sf")
 #'
-#' plot(cbsa_sf$geometry)
+#' plot(sf::st_geometry(cbsa_sf))
 "cbsa_sf"

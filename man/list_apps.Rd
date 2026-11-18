@@ -17,8 +17,10 @@ A data frame or a vector
 List available NSSP Shinyapps from the Rnssp-shiny-apps Github repository.
 }
 \examples{
+\dontrun{
 list_apps()
 list_apps(as.table = TRUE)
+}
 }
 \seealso{
 \href{https://github.com/CDCgov/Rnssp-shiny-apps}{https://github.com/CDCgov/Rnssp-shiny-apps}

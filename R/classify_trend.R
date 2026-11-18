@@ -71,7 +71,14 @@
 #'   ggplot(., aes(x = t, y = percent)) +
 #'   geom_line(color = pal[2], alpha = 0.5) +
 #'   geom_hline(yintercept = -0.4, size = 4.5, color = "white") +
-#'   geom_segment(aes(x = t, xend = max(t), y = -0.4, yend = -0.4, color = trend_classification), size = 3) +
+#'   geom_segment(
+#'     aes(
+#'      x = t,
+#'      xend = max(t),
+#'      y = -0.4,
+#'      yend = -0.4,
+#'      color = trend_classification
+#'     ), size = 3) +
 #'   scale_color_manual(values = pal, name = "Trend Classification") +
 #'   theme_few() +
 #'   labs(

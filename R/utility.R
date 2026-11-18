@@ -9,7 +9,9 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' password <- askme()
+#' }
 askme <- function(prompt = "Please enter your password: ") {
   getPass::getPass(msg = prompt)
 }
@@ -299,8 +301,10 @@ Rnssp_vignettes <- function(topic = NULL) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' list_templates()
 #' list_templates(as.table = TRUE)
+#' }
 list_templates <- function(as.table = FALSE) {
   req <- httr::GET("https://api.github.com/repos/cdcgov/Rnssp-rmd-templates/git/trees/master?recursive=1", httr::timeout(180))
   repoURL <- "https://raw.githubusercontent.com/cdcgov/Rnssp-rmd-templates/master"
@@ -342,8 +346,10 @@ list_templates <- function(as.table = FALSE) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' list_apps()
 #' list_apps(as.table = TRUE)
+#' }
 list_apps <- function(as.table = FALSE) {
   req <- httr::GET("https://api.github.com/repos/cdcgov/Rnssp-shiny-apps/git/trees/master?recursive=1", httr::timeout(180))
   repoURL <- "https://raw.githubusercontent.com/cdcgov/Rnssp-shiny-apps/master"

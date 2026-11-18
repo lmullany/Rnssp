@@ -17,8 +17,10 @@ A data frame or a vector
 List available NSSP report templates from the Rnssp-rmd-templates Github repository.
 }
 \examples{
+\dontrun{
 list_templates()
 list_templates(as.table = TRUE)
+}
 }
 \seealso{
 \href{https://github.com/CDCgov/Rnssp-rmd-templates}{https://github.com/CDCgov/Rnssp-rmd-templates}
