@@ -763,7 +763,7 @@ alert_farrington <- function(df, t = date, y = count, B = 4, g = 27,
     if (method == "modified") {
       alert_tbl <- df |>
         dplyr::mutate({{ t }} := as.Date(!!t)) |>
-        tidyr::nest(data_split = -all_of(groups)) |>
+        tidyr::nest(data_split = -dplyr::all_of(groups)) |>
         dplyr::mutate(
           anomalies = purrr::map(
             .x = data_split, .f = farrington_modified,
@@ -775,7 +775,7 @@ alert_farrington <- function(df, t = date, y = count, B = 4, g = 27,
     } else if (method == "original") {
       alert_tbl <- df |>
         dplyr::mutate({{ t }} := as.Date(!!t)) |>
-        tidyr::nest(data_split = -all_of(groups)) |>
+        tidyr::nest(data_split = -dplyr::all_of(groups)) |>
         dplyr::mutate(
           anomalies = purrr::map(
             .x = data_split, .f = farrington_original,
@@ -792,7 +792,7 @@ alert_farrington <- function(df, t = date, y = count, B = 4, g = 27,
     if (method == "modified") {
       alert_tbl <- df |>
         dplyr::mutate({{ t }} := as.Date(!!t)) |>
-        tidyr::nest(data_split = everything()) |>
+        tidyr::nest(data_split = dplyr::everything()) |>
         dplyr::mutate(
           anomalies = purrr::map(
             .x = data_split, .f = farrington_modified,
@@ -804,7 +804,7 @@ alert_farrington <- function(df, t = date, y = count, B = 4, g = 27,
     } else if (method == "original") {
       alert_tbl <- df |>
         dplyr::mutate({{ t }} := as.Date(!!t)) |>
-        tidyr::nest(data_split = everything()) |>
+        tidyr::nest(data_split = dplyr::everything()) |>
         dplyr::mutate(
           anomalies = purrr::map(
             .x = data_split, .f = farrington_original,

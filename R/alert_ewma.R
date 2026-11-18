@@ -302,7 +302,7 @@ alert_ewma <- function(df, t = date, y = count,
     groups <- dplyr::group_vars(base_tbl)
 
     alert_tbl <- base_tbl |>
-      tidyr::nest(data_split = -all_of(groups)) |>
+      tidyr::nest(data_split = -dplyr::all_of(groups)) |>
       dplyr::mutate(
         anomalies = purrr::map(
           .x = data_split, .f = ewma_loop,
@@ -332,7 +332,7 @@ alert_ewma <- function(df, t = date, y = count,
     }
 
     alert_tbl <- base_tbl |>
-      tidyr::nest(data_split = everything()) |>
+      tidyr::nest(data_split = dplyr::everything()) |>
       dplyr::mutate(
         anomalies = purrr::map(
           .x = data_split, .f = ewma_loop,

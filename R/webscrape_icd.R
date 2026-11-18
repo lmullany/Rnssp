@@ -148,8 +148,8 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
 
         file_path <- file.path(temp_dir, file_name)
 
-        icd_dictionary <- fread(file_path, sep = "\t", header = FALSE) |>
-          setnames(old = "V1", new = "code_combo") |>
+        icd_dictionary <- data.table::fread(file_path, sep = "\t", header = FALSE) |>
+          data.table::setnames(old = "V1", new = "code_combo") |>
           as.data.frame() |>
           dplyr::mutate(
             code_combo = stringr::str_replace_all(code_combo, "\\s{2,4}", "_"),
@@ -187,8 +187,8 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
 
       file_path <- file.path(temp_dir, file_name)
 
-      icd_dictionary <- fread(file_path, sep = "\t", header = FALSE) |>
-        setnames(old = "V1", new = "code_combo") |>
+      icd_dictionary <- data.table::fread(file_path, sep = "\t", header = FALSE) |>
+        data.table::setnames(old = "V1", new = "code_combo") |>
         as.data.frame() |>
         dplyr::mutate(
           code_combo = stringr::str_replace_all(code_combo, "\\s{2,4}", "_"),
@@ -267,8 +267,8 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
 
         file_path <- file.path(temp_dir, file_name)
 
-        icd_dictionary <- fread(file_path, sep = "\t", header = FALSE) |>
-          setnames(old = "V1", new = "code_combo") |>
+        icd_dictionary <- data.table::fread(file_path, sep = "\t", header = FALSE) |>
+          data.table::setnames(old = "V1", new = "code_combo") |>
           as.data.frame() |>
           dplyr::mutate(
             code_combo = stringr::str_replace_all(code_combo, "\\s{2,4}", "_"),
@@ -286,8 +286,8 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
       path <- paste0("pub/Health_Statistics/NCHS/Publications/ICD10CM/", file_year, "/")
       file <- paste0("https://ftp.cdc.gov/", path, "icd10cm_codes_", file_year, ".txt")
 
-      icd_dictionary <- fread(file, sep = "\t", header = FALSE) |>
-        setnames(old = "V1", new = "code_combo") |>
+      icd_dictionary <- data.table::fread(file, sep = "\t", header = FALSE) |>
+        data.table::setnames(old = "V1", new = "code_combo") |>
         as.data.frame() |>
         dplyr::mutate(
           code_combo = stringr::str_replace_all(code_combo, "\\s{2,4}", "_"),
@@ -329,8 +329,8 @@ webscrape_icd <- function(icd_version = "ICD10", year = NULL, quiet = FALSE) {
 
     file_year <- 2014
 
-    icd_dictionary <- fread(file_path, sep = "\t", header = FALSE) |>
-      setnames(old = "V1", new = "code_combo") |>
+    icd_dictionary <- data.table::fread(file_path, sep = "\t", header = FALSE) |>
+      data.table::setnames(old = "V1", new = "code_combo") |>
       as.data.frame() |>
       dplyr::mutate(
         code_combo = stringr::str_replace_all(code_combo, "\\s{2,4}", "_"),

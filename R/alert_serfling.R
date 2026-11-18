@@ -242,7 +242,7 @@ alert_serfling <- function(df, t = date, y = count, baseline_end) {
     groups <- dplyr::group_vars(df)
 
     df |>
-      tidyr::nest(data_split = -all_of(groups)) |>
+      tidyr::nest(data_split = -dplyr::all_of(groups)) |>
       dplyr::mutate(
         detection = purrr::map(
           .x = data_split, .f = serfling_model, t = !!t, y = !!y,
@@ -262,7 +262,7 @@ alert_serfling <- function(df, t = date, y = count, baseline_end) {
     }
 
     df |>
-      tidyr::nest(data_split = everything()) |>
+      tidyr::nest(data_split = dplyr::everything()) |>
       dplyr::mutate(
         detection = purrr::map(
           .x = data_split, .f = serfling_model, t = !!t, y = !!y,

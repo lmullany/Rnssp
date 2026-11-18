@@ -24,3 +24,14 @@ export(list_templates)
 export(remove_rmd_template)
 export(run_app)
 export(webscrape_icd)
+importFrom(data.table,
+  ":=",
+  .BY,
+  .EACHI,
+  .GRP,
+  .I,
+  .N,
+  .NGRP,
+  .SD,
+  data.table
+)

@@ -23,10 +23,10 @@ add_rmd_template_gui <- function() {
   )
 
   server <- function(input, output, session) {
-    rv <- reactiveValues(df_ready = FALSE)
+    rv <- shiny::reactiveValues(df_ready = FALSE)
 
     # fetch the template_df data only once the loader UI is rendered
-    observeEvent(input$loader_rendered, {
+    shiny::observeEvent(input$loader_rendered, {
       rv$template_df <- dplyr::mutate(
         dplyr::rename(
           dplyr::select(
@@ -363,10 +363,10 @@ run_app_gui <- function() {
   )
 
   server <- function(input, output, session) {
-    rv <- reactiveValues(df_ready = FALSE)
+    rv <- shiny::reactiveValues(df_ready = FALSE)
 
     # fetch the app_df data only once the loader UI is rendered
-    observeEvent(input$loader_rendered, {
+    shiny::observeEvent(input$loader_rendered, {
       rv$app_df <- dplyr::mutate(
         dplyr::rename(
           Rnssp::list_apps(TRUE),

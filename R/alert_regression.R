@@ -296,7 +296,7 @@ alert_regression <- function(df, t = date, y = count, B = 28, g = 2) {
     groups <- dplyr::group_vars(base_tbl)
 
     base_tbl |>
-      tidyr::nest(data_split = -all_of(groups)) |>
+      tidyr::nest(data_split = -dplyr::all_of(groups)) |>
       dplyr::mutate(anomalies = purrr::map(
         .x = data_split,
         .f = adaptive_regression, t = !!t, y = !!y, B = B, g = g
@@ -313,7 +313,7 @@ alert_regression <- function(df, t = date, y = count, B = 28, g = 2) {
       dplyr::select(-c(Mon, Tue, Wed, Thu, Fri, Sat, Sun))
 
     reg_initial <- base_tbl |>
-      tidyr::nest(data_split = -all_of(groups)) |>
+      tidyr::nest(data_split = -dplyr::all_of(groups)) |>
       dplyr::mutate(anomalies = purrr::map(
         .x = data_split,
         .f = adaptive_regression, t = !!t, y = !!y, B = B, g = g
@@ -330,7 +330,7 @@ alert_regression <- function(df, t = date, y = count, B = 28, g = 2) {
       dplyr::select(-c(Mon, Tue, Wed, Thu, Fri, Sat, Sun))
 
     ds_check1 <- reg_initial |>
-      dplyr::group_by(across(all_of(groups))) |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(groups))) |>
       dplyr::mutate(
         dow = weekdays(!!t, abbreviate = TRUE),
         ma7 = data.table::frollmean(!!y, n = 7, align = "right", fill = NA),
@@ -341,7 +341,7 @@ alert_regression <- function(df, t = date, y = count, B = 28, g = 2) {
     ds_check2 <- ds_check1 |>
       dplyr::filter(dow %in% c("Sat", "Sun")) |>
       dplyr::arrange(get(groups), dow, !!t) |>
-      dplyr::group_by(across(all_of(groups)), dow) |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(groups)), dow) |>
       dplyr::mutate(
         wday_ma7 = data.table::frollmean(!!y, n = 7, align = "right", fill = NA),
         lt_wday_ma7 = dplyr::if_else(!!y < wday_ma7, TRUE, FALSE),
@@ -353,14 +353,14 @@ alert_regression <- function(df, t = date, y = count, B = 28, g = 2) {
       ) |>
       dplyr::ungroup() |>
       dplyr::select(
-        all_of(groups),
+        dplyr::all_of(groups),
         !!t,
         wday_ma7,
         remove_wday_alert
       )
 
     ds_check1 |>
-      dplyr::left_join(ds_check2, by = c(groups, quo_name(t))) |>
+      dplyr::left_join(ds_check2, by = c(groups, rlang::quo_name(t))) |>
       dplyr::mutate(
         alert_status_final = dplyr::case_when(
           remove_alert & (!dow %in% c("Sat", "Sun")) ~ "grey",
@@ -383,7 +383,7 @@ alert_regression <- function(df, t = date, y = count, B = 28, g = 2) {
     }
 
     reg_initial <- base_tbl |>
-      tidyr::nest(data_split = everything()) |>
+      tidyr::nest(data_split = dplyr::everything()) |>
       dplyr::mutate(anomalies = purrr::map(
         .x = data_split,
         .f = adaptive_regression, t = !!t, y = !!y, B = B, g = g
@@ -428,7 +428,7 @@ alert_regression <- function(df, t = date, y = count, B = 28, g = 2) {
       )
 
     ds_check1 |>
-      dplyr::left_join(ds_check2, by = quo_name(t)) |>
+      dplyr::left_join(ds_check2, by = rlang::quo_name(t)) |>
       dplyr::mutate(
         alert_status_final = dplyr::case_when(
           remove_alert & (!dow %in% c("Sat", "Sun")) ~ "blue",
