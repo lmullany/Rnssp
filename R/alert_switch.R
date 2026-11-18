@@ -160,7 +160,7 @@ alert_switch <- function(df, t = date, y = count, B = 28,
       dplyr::filter(adjusted_r_squared >= 0.60) |>
       dplyr::select(-adjusted_r_squared) |>
       dplyr::bind_rows(replace_dates) |>
-      dplyr::arrange(!!!syms(groups), !!rlang::enquo(t)) |>
+      dplyr::arrange(!!!rlang::syms(groups), !!rlang::enquo(t)) |>
       dplyr::mutate(detector = ifelse(is.na(test_statistic), NA, detector))
   } else {
     combined_out <- alert_tbl_reg |>

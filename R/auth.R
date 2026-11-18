@@ -22,11 +22,14 @@ Auth <- R6::R6Class(
         if (any("data.frame" %in% class(httr::content(apir, as = "text")))) {
           return(httr::content(apir, as = "text"))
         }
-        
         if (fromCSV) {
-          httr::content(apir, by = "text/csv") |> readr::read_csv(...)
+          return(
+            httr::content(apir, by = "text/csv") |> I() |> readr::read_csv(...)
+          )
         } else {
-          httr::content(apir, as = "text") |> jsonlite::fromJSON()
+          return(
+            httr::content(apir, as = "text") |> jsonlite::fromJSON()
+          )
         }
       }
     }
